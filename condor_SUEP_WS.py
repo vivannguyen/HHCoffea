@@ -50,7 +50,7 @@ def inputfile(nanofile):
     return nanofile
 
 
-options.dataset='QCD'
+#options.dataset='QCD'
 
 pre_selection = ""
 

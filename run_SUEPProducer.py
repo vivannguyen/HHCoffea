@@ -68,7 +68,7 @@ def main():
     options = parser.parse_args()
 
     cmssw_base = os.environ['CMSSW_BASE']
-    indir = "/mnt/hadoop/scratch/freerc/SUEP/{}/".format(options.tag)
+    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/test/emilyinparis/{}/".format(options.tag)
 
     pattern = "WZ"
     for sample in os.listdir(indir):
