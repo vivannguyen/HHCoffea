@@ -3,7 +3,7 @@ import re
 
 from coffea.processor import run_uproot_job, futures_executor
 
-from python.SUEP_Producer import *
+from python.HH_Producer import *
 from python.SumWeights import *
 
 import uproot3 as uproot
@@ -63,19 +63,19 @@ ext_syst = []
 
 modules_era = []
 
-modules_era.append(SUEP_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset))#,
+modules_era.append(HH_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset))#,
 #                         haddFileName="tree_%s.root" % str(options.jobNum)))
 if options.isMC and options.doSyst==1:
    for sys in pro_syst:
        for var in ["Up", "Down"]:
-           modules_era.append(SUEP_NTuple(options.isMC, str(options.era), do_syst=1,
+           modules_era.append(HH_NTuple(options.isMC, str(options.era), do_syst=1,
                                     syst_var=sys + var, sample=options.dataset))#,
 #                                    haddFileName=f"tree_{options.jobNum}_{sys}{var}.root"))
    
    for sys in ext_syst:
        for var in ["Up", "Down"]:
            modules_era.append(
-               SUEP_NTuple(
+               HH_NTuple(
                    options.isMC, str(options.era),
                    do_syst=1, syst_var=sys + var,
                    weight_syst=True,
@@ -116,7 +116,7 @@ if options.isMC:
             processor_instance=instance,
             executor=futures_executor,
             executor_args={'workers': 10},
-            chunksize=500000
+            chunksize=500000000
         )
         for h, hist in output.items():
             f[h] = export1d(hist)

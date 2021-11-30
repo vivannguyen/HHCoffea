@@ -29,7 +29,7 @@ echo "+ CMSSW_BASE  = $CMSSW_BASE"
 echo "+ PYTHON_PATH = $PYTHON_PATH"
 echo "+ PWD         = $PWD"
 cp $2 temp_$1.root
-python condor_SUEP_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=temp_$1.root
+python condor_HH_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=temp_$1.root
 rm temp_$1.root
 echo "----- transfer output to eos :"
 mv tree_$1.root {outputdir}
@@ -115,7 +115,7 @@ def main():
         with open(os.path.join(jobs_dir, "condor.sub"), "w") as condorfile:
             condor = condor_TEMPLATE.format(
                 transfer_file= ",".join([
-                    "../condor_SUEP_WS.py"
+                    "../condor_HH_WS.py"
                     #"../python/SUEP_Producer.py",
                     #"../python/SumWeights.py"
                 ]),

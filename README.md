@@ -1,5 +1,5 @@
-# SUEP Coffea
-SUEP analysis using [Coffea](https://coffeateam.github.io/coffea/)
+# HH Coffea 
+adapted from SUEP Coffea. HH analysis using [Coffea](https://coffeateam.github.io/coffea/)
 
 ## Quick start
 ```bash
@@ -7,37 +7,39 @@ cmsrel CMSSW_10_6_4
 cd CMSSW_10_6_4/src
 cmsenv
 
-git clone https://github.com/SUEPPhysics/SUEPCoffea.git
+git clone git@github.com:vivannguyen/HHCoffea.git
+```
+
+## Merge files for coffea
+edit paths for input ntuples and output
+```bash
+python merger.py
 ```
 
 ## to run the producer
 
+histograms are defined in HH_Producer.py
+
 ```bash
-python3 condor_SUEP_WS.py --isMC=0/1 --era=201X --infile=XXX.root
+python3 condor_HH_WS.py --isMC=0/1 --era=201X --infile=XXX.root
 ```
 
 If you do not have the requirements set up then you can also run this through the docker container that the coffea team provides. This is simple and easy to do. You just need to enter the Singularity and then issue the command above. To do this use:
 
 ```bash
-singularity shell -B ${PWD}:/work /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest
+singularity shell -B ${PWD} -B /afs -B /eos /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest
 ```
 
-If there are files in other folders that are necessary (The folder with your NTuples for example) you can bind additional folders like with the following which will allow one to access the files in the /mnt directory:
-
+Inside the singularity shell, can run a shell script over all files (TODO update this)
 ```bash
-export SINGULARITY_BIND="/mnt"
+./runner_2016mc.sh
+./runner_2016data.sh
 ```
 
-## To run on many files
+## Plotter
+To plot run HHplotter.py. Options for input are histogram directory from coffea, input samples directory, xsection yaml, and option to parallelize. Example command:
 ```bash
-To be set up
-```
-## to merge the output
-
-Once everything is run we will want to merge all the output files into a single file per sample. This can be done with the merger.py file. Simply update the directory names at the top of this file and then run it:
-
-```bash
-python merger.py
+python HHplotter.py --parallel --hist_dir=qcdtestv2_coffea --sample_dir=/eos/user/v/vinguyen/qcdtestv2/merged/
 ```
 
 ## Requirements
@@ -50,5 +52,4 @@ python merger.py
 Alternatively, everything can be run through the docker container provided by the coffea team:
 /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest
 
-Example commands shown above.
 

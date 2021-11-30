@@ -1,5 +1,5 @@
 """
-WSProducer.py
+HH_Producer.py
 Workspace producers using coffea.
 """
 from coffea.hist import Hist, Bin, export1d
@@ -62,7 +62,7 @@ class WSProducer(ProcessorABC):
         """Backwards-compatible passbut."""
         return eval('&'.join('(' + cut.format(sys=('' if self.weight_syst else self.syst_suffix)) + ')' for cut in self.selection[cat] ))#if excut not in cut))
 
-class SUEP_NTuple(WSProducer):
+class HH_NTuple(WSProducer):
     histograms = {
         'Zlep_cand_mass_QCD_B': {
             'target': 'Zlep_cand_mass',
