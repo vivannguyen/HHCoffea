@@ -1,0 +1,20 @@
+name: plotting
+channels:
+  - conda-forge
+  - defaults
+  - anaconda
+dependencies:
+  - python == 3.8.10
+  - pip
+  - ipykernel
+  - joblib
+  - jupyterlab
+  - matplotlib
+  - numpy
+  - pandas
+  - root
+  - scipy
+  - seaborn
+  - uproot3 == 3.14.4
+  - pip:
+    - pyyaml
