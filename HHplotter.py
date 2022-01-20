@@ -66,22 +66,14 @@ def get_histograms(hist_paths, year, channel):
         else:
             raise ValueError(f'channel must be \'muon\' or \'electron\', not {channel}')
 
+        if any([s in filename for s in skip]): continue
         if year == '2016':
-            if any([s in filename for s in skip]): continue
-#            if 'SingleElectron' in filename: continue
-#            if 'DoubleEG' in filename: continue
-
-        if year == '2017':
-            if any([s in filename for s in skip]): continue
+            pass
+        elif year == '2017':
             if 'TTTo' in filename: continue
-            #if 'SingleElectron' in filename: continue
-            #if 'DoubleEG' in filename: continue
-
-        if year == '2018':
-            if any([s in filename for s in skip]): continue
+        elif year == '2018':
             if 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8' in filename: continue
             if 'TTTo' in filename: continue
-            #if 'EGamma' in filename: continue
 
         samplename = Path(filename).stem.split('_WS')[0]
 
@@ -143,7 +135,6 @@ def get_normalizations(sample_paths, xsections, histogram_names, year):
     logging.info('Finished obtaining normalizations.')
     logging.info(f'Number normalizations in memory: {len(norm_dict)}.')
 # These normalizations scale by lumi/genweight. The xsec is already applied in the plots from coffea
-    print('copy after deleting', len(histogram_names))
     return(norm_dict)
 
 def rebin( a, newshape ):
@@ -333,7 +324,6 @@ def new_plotting(event_yields, bkgd_norm, year, outdir=''):
 
     # The first bin has a value of 0 and will give a warning.
     ratio = Data/MC
-    binc = np.array([ 0.5*(bins[j]+bins[j+1])for j in range(bins.shape[0]-1)])
     binc = bins[:-1] + np.diff(bins) * 0.5
     xerr = np.diff(bins)*0.5
 
