@@ -3,9 +3,11 @@
 #%config InlineBackend.figure_format = 'retina'
 import sys
 
+import glob
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import yaml
 
@@ -17,8 +19,6 @@ from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy import interpolate
-from scipy.optimize import curve_fit, fsolve
 from tqdm import tqdm
 
 try:
@@ -34,47 +34,65 @@ COLORS=list(sns.color_palette('Set2').as_hex())
 
 LUMI = {'2016':36, '2017':41.5, '2018': 59.8}
 
-def get_histograms(hist_dir, year):
+def cleanup(samples_directory, hist_dir, xsections):
+    sample_files = set([Path(f).stem
+                        for f in glob.glob(os.path.join(samples_directory, '*.root'))])
+    histogram_files = set([Path(f).stem.replace('_WS_selections','')
+                           for f in glob.glob(os.path.join(hist_dir, '*.root'))
+                           ])
+    overlap = sample_files.intersection(histogram_files)
+    data_kwds = ['DoubleEG', 'DoubleMuon', 'SingleElectron', 'SingleMuon', 'EGamma']
+    to_keep = []
+    for f in overlap:
+        if any([kwd in f for kwd in data_kwds]):
+            to_keep.append(f)
+        else:
+            if f in xsections:
+                to_keep.append(f)
+    sample_paths = [os.path.join(samples_directory, f'{f}.root')
+                    for f in to_keep]
+    hist_paths = [os.path.join(hist_dir, f'{f}_WS_selections.root')
+                  for f in to_keep]
+    return sample_paths, hist_paths
+
+def get_histograms(hist_paths, year, channel):
     histograms={}
 
     logging.info('Loading histograms into memory.')
-    for filename in tqdm(os.listdir(hist_dir)):
+    for filename in tqdm(hist_paths):
+
+        if channel == 'muon': skip = ['SingleElectron','DoubleEG','EGamma']
+        elif channel == 'electron': skip = ['SingleMuon','DoubleMuon']
+        else:
+            raise ValueError(f'channel must be \'muon\' or \'electron\', not {channel}')
 
         if year == '2016':
-            if 'QCD_Pt-15to20_MuEnriched' in filename: continue
-            if 'QCD_Pt-20to30_EMEnriched' in filename: continue
-            if 'QCD_Pt-20to30_MuEnriched' in filename: continue
-            if 'QCD_Pt-30to50_EMEnriched' in filename: continue
-            if 'SingleElectron' in filename: continue
-            if 'DoubleEG' in filename: continue
+            if any([s in filename for s in skip]): continue
+#            if 'SingleElectron' in filename: continue
+#            if 'DoubleEG' in filename: continue
 
         if year == '2017':
-            if 'QCD_Pt-15to20_EMEnriched' in filename: continue
-            if 'QCD_Pt-15to20_MuEnriched' in filename: continue
-            if 'QCD_Pt-20to30_EMEnriched' in filename: continue
-            if 'QCD_Pt-30to50_EMEnriched' in filename: continue
+            if any([s in filename for s in skip]): continue
             if 'TTTo' in filename: continue
-            if 'SingleElectron' in filename: continue
-            if 'DoubleEG' in filename: continue
+            #if 'SingleElectron' in filename: continue
+            #if 'DoubleEG' in filename: continue
 
         if year == '2018':
-            if 'QCD_Pt-15to20_EMEnriched' in filename: continue
-            if 'QCD_Pt-15to20_MuEnriched' in filename: continue
-            if 'QCD_Pt-20to30_EMEnriched' in filename: continue
-            if 'QCD_Pt-30to50_EMEnriched' in filename: continue
+            if any([s in filename for s in skip]): continue
             if 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8' in filename: continue
             if 'TTTo' in filename: continue
-            if 'EGamma' in filename: continue
+            #if 'EGamma' in filename: continue
 
-        samplename = filename.split('_WS')[0]
+        samplename = Path(filename).stem.split('_WS')[0]
 
-        fn_sample = os.path.join(hist_dir, filename)
-        f_sample = uproot.open(fn_sample)
+        f_sample = uproot.open(filename)
         histogram_sample = f_sample.allitems( filterclass=lambda cls: issubclass(cls, uproot_methods.classes.TH1.Methods))
-
+        if not histogram_sample:
+            continue
         histograms[samplename] = histogram_sample
 
     logging.info('Finished loading histograms.')
+    logging.info(f'Number of samples remaining: {len(histograms)}')
     return histograms
 
 def xs_scale(xsections, year, ufile, proc):
@@ -95,18 +113,17 @@ def get_xsections(infile):
             print(exc)
     return xsections
 
-def get_normalizations(samples_directory, xsections, histogram_names, year):
+def get_normalizations(sample_paths, xsections, histogram_names, year):
     norm_dict = {}
 
     logging.info('Obtaining normalizations.')
 
-    for fn in tqdm(os.listdir(samples_directory)):
-        fn_sample = os.path.join(samples_directory, fn)
-        if 'TTTo' in fn_sample : continue
-        if 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8' in fn_sample : continue
-        if os.path.isfile(fn_sample):
+    for fn in tqdm(sample_paths):
+        if 'TTTo' in fn : continue
+        if 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8' in fn : continue
+        if os.path.isfile(fn):
             _proc = os.path.basename(fn).replace(".root","")
-            _file = uproot.open(fn_sample)
+            _file = uproot.open(fn)
             if ("DoubleEG") in fn:
                 _scale = 1
             elif ("DoubleMuon") in fn:
@@ -120,12 +137,13 @@ def get_normalizations(samples_directory, xsections, histogram_names, year):
             else:
                 _scale  = xs_scale(xsections, year, ufile=_file, proc=_proc)
             for idx, name in enumerate(histogram_names):
-                if name in fn:
+                if name == Path(fn).stem:
                     norm_dict[name] = _scale
-                    del histogram_names[idx]
                     break
     logging.info('Finished obtaining normalizations.')
+    logging.info(f'Number normalizations in memory: {len(norm_dict)}.')
 # These normalizations scale by lumi/genweight. The xsec is already applied in the plots from coffea
+    print('copy after deleting', len(histogram_names))
     return(norm_dict)
 
 def rebin( a, newshape ):
@@ -154,24 +172,34 @@ def normalize_event_yields(event_yields, normalizations, file_to_category):
     for sample in event_yields:
         category = file_to_category[sample]
         if category not in categorized_yields:
-            categorized_yields[category] = normalizations[sample] * event_yields[sample]
+            try:
+                categorized_yields[category] = normalizations[sample] * event_yields[sample]
+            except:
+                if sample not in normalizations and sample not in event_yields:
+                    print(f'{sample} not in both')
+                elif sample not in event_yields:
+                    print(f'{sample} not in event_yields')
+                elif sample not in normalizations:
+                    print(f'{sample} not in normalizations')
         else:
+            if sample not in normalizations and sample not in event_yields:
+                print(f'{sample} not in both')
+            elif sample not in event_yields:
+                print(f'{sample} not in event_yields')
+            elif sample not in normalizations:
+                print(f'{sample} not in normalizations')
             categorized_yields[category] += normalizations[sample] * event_yields[sample]
 
     return categorized_yields
 
-def get_bins_and_event_yields(histograms, normalizations, year):
-    if year == '2016':
-        choose_hist = 'DoubleMuon_Run2016B-02Apr2020_ver2-v1'
-    elif year == '2017':
-        choose_hist = 'DoubleMuon_Run2017B-02Apr2020-v1'
-    elif year == '2018':
-        choose_hist = 'DoubleMuon_Run2018B-02Apr2020-v1'
-
+def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False):
     with open(f'{year}_sample_reference.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
+    if filter_categories:
+        for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
+            categories.remove(category)
 
     df_dict = {}
     df_dict['sample_name'] = []
@@ -182,15 +210,17 @@ def get_bins_and_event_yields(histograms, normalizations, year):
 
     logging.info('Getting bins and event yields.')
 
-    for idx, (name, roothist) in enumerate(tqdm(histograms[choose_hist])):
+    arb_key = next(iter(histograms))
+
+    for idx, (name, roothist) in enumerate(tqdm(histograms[arb_key])):
         name = name.decode("utf-8")
         name = name.replace(";1", "")
 
+        # TODO make this more robust
         if "genEventSumw" == name:
-            print("bye")
             continue
-
         event_yields = {}
+        # TODO Only one for loop here.
         for key, value in histograms.items():
             event_yields[key] = np.abs(value[idx][1].numpy())[0]
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
@@ -203,7 +233,6 @@ def get_bins_and_event_yields(histograms, normalizations, year):
         df_dict['sample_name'].append(name)
 
     logging.info('Finished getting bins and event yields.')
-
     return pd.DataFrame(df_dict)
 
 def estimate_background(all_event_yields, tol=1e-16, maxiter=50, disp=False, sigma=1):
@@ -402,7 +431,10 @@ def main():
                         help='Path to save plots.')
     parser.add_argument('--nonorm', action='store_true', required=False,
                         help='Turns off using background normalizations.')
-
+    parser.add_argument('--filter', dest='filter_categories', action='store_true', required=False,
+                        help='Filters QCD, NonResVBF, Radion, Graviton, NonRes, NonResSM categories.')
+    parser.add_argument('--channel', type=str, choices=['muon', 'electron'], required=True,
+                        help='Muon or Electron channel')
     args = parser.parse_args()
 
     if args.hist_dir is None:
@@ -435,11 +467,12 @@ def main():
     logging.info(f'Cross-section file: {xfile}')
     logging.info(f'Year: {year}')
 
-    histograms = get_histograms(directory, year)
     xsections = get_xsections(xfile)
-    normalizations = get_normalizations(samples_directory, xsections, list(histograms.keys()), year)
+    sample_paths, hist_paths = cleanup(samples_directory, directory, xsections)
+    histograms = get_histograms(hist_paths, year, args.channel)
+    normalizations = get_normalizations(sample_paths, xsections, list(histograms.keys()), year)
 
-    df = get_bins_and_event_yields(histograms, normalizations, year)
+    df = get_bins_and_event_yields(histograms, normalizations, year, filter_categories=args.filter_categories)
 
     if args.nonorm:
         df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
