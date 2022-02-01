@@ -2,6 +2,8 @@
 HH_Producer.py
 Workspace producers using coffea.
 """
+import json
+
 from coffea.hist import Hist, Bin, export1d
 from coffea.processor import ProcessorABC, LazyDataFrame, dict_accumulator
 from uproot3 import recreate
@@ -16,7 +18,7 @@ class WSProducer(ProcessorABC):
     histograms = NotImplemented
     selection = NotImplemented
 
-    def __init__(self, isMC, era=2017, sample="DY", do_syst=False, syst_var='', weight_syst=False, haddFileName=None, flag=False):
+    def __init__(self, isMC, era=2017, sample="DY", do_syst=False, syst_var='', weight_syst=False, haddFileName=None, flag=False, njetw=None):
         self._flag = flag
         self.do_syst = do_syst
         self.era = era
@@ -32,6 +34,17 @@ class WSProducer(ProcessorABC):
         })
         self.outfile = haddFileName
 
+        self.njet_weights = None
+        if njetw is not None:
+            for line in open(njetw, 'r'):
+                json_read = json.loads(line)
+                if json_read['year'] == era:
+                    self.njet_weights = np.fromiter(json_read['weights'].values(), dtype=np.float64)
+                    self.njet_weights[self.njet_weights == -999] = 1
+                    self.njet_weights = np.concatenate([self.njet_weights, np.tile(self.njet_weights[-1], 20)])
+                    break
+        #print('NJET WEIGHTS', self.njet_weights)
+
     def __repr__(self):
         return f'{self.__class__.__name__}(era: {self.era}, isMC: {self.isMC}, sample: {self.sample}, do_syst: {self.do_syst}, syst_var: {self.syst_var}, weight_syst: {self.weight_syst}, output: {self.outfile})'
 
@@ -43,15 +56,29 @@ class WSProducer(ProcessorABC):
         output = self.accumulator.identity()
 
         weight = self.weighting(df)
-
+        nobtag_weight = weight
+        btag_weight = self.btag_weighting(df, weight)
+        if self.njet_weights is not None:
+            weight = self.my_btag_weighting(df, btag_weight, self.njet_weights)
         for h, hist in list(self.histograms.items()):
             for region in hist['region']:
                 name = self.naming_schema(hist['name'], region)
                 selec = self.passbut(df, hist['target'], region)
-                output[name].fill(**{
-                    'weight': weight[selec],
-                    name: df[hist['target']][selec]#.flatten()
-                })
+                if name == 'ngood_jets_btagSF':
+                    output[name].fill(**{
+                        'weight':btag_weight[selec],
+                        name: df[hist['target']][selec]#.flatten()
+                    })
+                elif name == 'ngood_jets_nobtagSF':
+                    output[name].fill(**{
+                        'weight':nobtag_weight[selec],
+                        name: df[hist['target']][selec]#.flatten()
+                    })
+                else:
+                    output[name].fill(**{
+                        'weight':weight[selec],
+                        name: df[hist['target']][selec]#.flatten()
+                    })
 
         return output
 
@@ -416,10 +443,39 @@ class HH_NTuple(WSProducer):
             'region': ['QCD_C'],
             'axis': {'label': 'cosThetaZllHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
         },
+        'ngood_jets': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets',  # name to write to histogram
+            'region': ['signal_btag'],
+            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_btagSF': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_btagSF',  # name to write to histogram
+            'region': ['signal_btag'],
+            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_btagSF_nobtagSF': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_nobtagSF',  # name to write to histogram
+            'region': ['signal_btag'],
+            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
     }
     selection = {
             "signal" : [
                 "event.ngood_bjets     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "signal_btag" : [
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
@@ -588,5 +644,16 @@ class HH_NTuple(WSProducer):
 
         return weight
 
+    def btag_weighting(self, event: LazyDataFrame, weight):
+        if self.isMC:
+            weight = weight * event.w_btag_SF
+
+        return weight
+
+    def my_btag_weighting(self, event: LazyDataFrame, weight, njet_weights):
+        if self.isMC:
+            weight = weight * njet_weights[event.ngood_jets]
+        return weight
+
     def naming_schema(self, name, region):
-        return f'{name}{self.syst_suffix}'
+     return f'{name}{self.syst_suffix}'

@@ -226,6 +226,42 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
     logging.info('Finished getting bins and event yields.')
     return pd.DataFrame(df_dict)
 
+def btag_ratio(all_event_yields, year, filepath, overwrite):
+    names_for_njets = np.array(['ngood_jets', 'ngood_jets_btagSF'])
+    df_subset = (all_event_yields.set_index('sample_name')
+                                 .loc[names_for_njets]
+                                 .reset_index())
+
+    njets, njets_btagSF = *[df_subset.iloc[idx] for idx in range(df_subset.shape[0])],
+    sum_func = lambda x: (x['DY'] + x['TT'] + x['SMHiggs'] + x['Other'])
+
+    logging.info('Calculating btag renormalizations by jet bin.')
+
+    sum_njets = sum_func(njets)
+    sum_njets_btagSF = sum_func(njets_btagSF)
+
+    sum_high_njet = sum(sum_njets[10:])
+    sum_high_njet_btagSF = sum(sum_njets_btagSF[10:])
+    ratio_high_njet = sum_high_njet/sum_high_njet_btagSF
+
+    btag_ratio = sum_njets/sum_njets_btagSF
+    btag_ratio[10:]=[ratio_high_njet]*len(btag_ratio[10:])
+    btag_ratio[np.isnan(btag_ratio)] = -999
+    print(f'btag Ratio: {btag_ratio}')
+
+    weights = {str(idx): ratio for idx, ratio in enumerate(btag_ratio)}
+    btag_weights = {'year': int(year), 'weights': weights}
+
+    if overwrite:
+        mode = 'w'
+    else:
+        mode = 'a'
+    with open(filepath, mode) as f:
+        f.write(str(btag_weights).replace('\'', '\"') + '\n')
+
+    logging.info('Saved btag renormalizations to JSON.')
+
+
 def estimate_background(all_event_yields, tol=1e-16, maxiter=50, disp=False, sigma=1):
     names_for_bkgd_est = np.array(['Zlep_cand_mass_DYcontrol_QCD_C', 'Zlep_cand_mass_TTcontrol_QCD_C',
                           'Zlep_cand_mass_DYcontrol', 'Zlep_cand_mass_TTcontrol',
@@ -373,7 +409,7 @@ def new_plotting(event_yields, bkgd_norm, year, outdir=''):
     lower.set_xlabel(name, x=1, ha='right')
     lower.set_ylabel("Data/MC", fontsize = 10)
     lower.set_ylim(0, 2)
-    yerr = np.sqrt(Data) / MC / 1000
+    yerr = np.sqrt(Data) / MC 
     lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
@@ -407,13 +443,17 @@ def new_plotting(event_yields, bkgd_norm, year, outdir=''):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Vivan\'s plotting tool')
-    parser.add_argument('--sample_dir', type=str, required=False, default=None,
+    parser.add_argument('--sample_dir', type=str, required=False,
+                        default='/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v1/2016/',
                         help='Directory containing sample files.')
-    parser.add_argument('--hist_dir', type=str, required=False, default=None,
+    parser.add_argument('--hist_dir', type=str, required=False,
+                        default='/eos/user/v/vinguyen/coffeafiles/2016-fixed-rename/',
                         help='Directory containing histogram files.')
-    parser.add_argument('--xfile', type=str, required=False, default=None,
+    parser.add_argument('--xfile', type=str, required=False,
+                        default='/afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2016.yaml',
                         help='File containing cross sections.')
-    parser.add_argument('--year', type=str, required=False, default=None,
+    parser.add_argument('--year', type=str, required=False,
+                        default='2016',
                         help='Run year')
     parser.add_argument('--series', action='store_true', required=False,
                         help='Make plots in series.')
@@ -425,24 +465,16 @@ def main():
                         help='Filters QCD, NonResVBF, Radion, Graviton, NonRes, NonResSM categories.')
     parser.add_argument('--channel', type=str, choices=['muon', 'electron'], required=True,
                         help='Muon or Electron channel')
+    parser.add_argument('--btag_filename', type=str, required=False, default='btag_weights',
+                        help='File containing btag weights by jet bin')
+    parser.add_argument('--btag', action='store_true', required=False,
+                        help='Calculates btag weights by jet bin')
+    parser.add_argument('--btag_overwrite', action='store_true', required=False,
+                        help='Overwrite btag weights file.')
     args = parser.parse_args()
 
-    if args.hist_dir is None:
-        directory = "/eos/user/v/vinguyen/coffeafiles/2016-fixed-rename/"
-    else:
-        directory = args.hist_dir
-    if args.sample_dir is None:
-        samples_directory = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v1/2016/"
-    else:
-        samples_directory = args.sample_dir
-    if args.xfile is None:
-        xfile = '/afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2016.yaml'
-    else:
-        xfile = args.xfile
-    if args.year is None:
-        year = '2016'
-    else:
-        year = args.year
+    if args.btag and not args.nonorm:
+        raise ValueError('Cannot compute btag weights with normalizations.')
 
     if args.outdir is not None and not os.path.isdir(args.outdir):
         print(f'{args.outdir} does not exist. Making new directory.')
@@ -452,21 +484,24 @@ def main():
     else:
         outdir = args.outdir
 
-    logging.info(f'Histogram directory: {directory}')
-    logging.info(f'Sample directory: {samples_directory}')
-    logging.info(f'Cross-section file: {xfile}')
-    logging.info(f'Year: {year}')
+    logging.info(f'Histogram directory: {args.hist_dir}')
+    logging.info(f'Sample directory: {args.sample_dir}')
+    logging.info(f'Cross-section file: {args.xfile}')
+    logging.info(f'Year: {args.year}')
 
-    xsections = get_xsections(xfile)
-    sample_paths, hist_paths = cleanup(samples_directory, directory, xsections)
-    histograms = get_histograms(hist_paths, year, args.channel)
-    normalizations = get_normalizations(sample_paths, xsections, list(histograms.keys()), year)
+    xsections = get_xsections(args.xfile)
+    sample_paths, hist_paths = cleanup(args.sample_dir, args.hist_dir, xsections)
+    histograms = get_histograms(hist_paths, args.year, args.channel)
+    normalizations = get_normalizations(sample_paths, xsections, list(histograms.keys()), args.year)
 
-    df = get_bins_and_event_yields(histograms, normalizations, year, filter_categories=args.filter_categories)
+    df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories)
 
     if args.nonorm:
         df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
         bkgd_norm = np.array([1.0, 1.0, 1.0])
+        if args.btag:
+            btag_path = os.path.join(os.getcwd(), Path(args.btag_filename).stem + '.jsonl')
+            btag_ratio(df, args.year, btag_path, args.btag_overwrite)
     else:
         bkgd_norm, bkgd_norm_upper, bkgd_norm_lower = estimate_background(df, disp=True, sigma=2)
         df = scale_cregions(df, *bkgd_norm)
@@ -477,13 +512,14 @@ def main():
         num_cpus = os.cpu_count()
         batch_size = 1 #len(all_bins) // num_cpus + 1
         (Parallel(n_jobs=num_cpus, batch_size=batch_size)
-         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, year, outdir=outdir)
+         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, args.year, outdir=outdir)
          for rowidx in range(df.shape[0])))
     else:
         for rowidx in range(df.shape[0]):
-            new_plotting(df.iloc[rowidx], bkgd_norm, year, outdir=outdir)
+            new_plotting(df.iloc[rowidx], bkgd_norm, args.year, outdir=outdir)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
 
 if __name__ == '__main__':
-	main()
+	m
+    in()

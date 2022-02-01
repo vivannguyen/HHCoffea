@@ -19,6 +19,7 @@ parser.add_argument('--doSyst', type=int, default=1, help="")
 parser.add_argument('--infile', type=str, default=None, help="")
 parser.add_argument('--dataset', type=str, default="X", help="")
 parser.add_argument('--nevt', type=str, default=-1, help="")
+parser.add_argument('--njetw', type=str, default=None, help="")
 
 options = parser.parse_args()
 
@@ -63,13 +64,13 @@ ext_syst = []
 
 modules_era = []
 
-modules_era.append(HH_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset))#,
+modules_era.append(HH_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset, njetw=options.njetw))#,
 #                         haddFileName="tree_%s.root" % str(options.jobNum)))
 if options.isMC and options.doSyst==1:
    for sys in pro_syst:
        for var in ["Up", "Down"]:
            modules_era.append(HH_NTuple(options.isMC, str(options.era), do_syst=1,
-                                    syst_var=sys + var, sample=options.dataset))#,
+                                    syst_var=sys + var, sample=options.dataset, njetw=options.njetw))#,
 #                                    haddFileName=f"tree_{options.jobNum}_{sys}{var}.root"))
    
    for sys in ext_syst:
@@ -79,7 +80,8 @@ if options.isMC and options.doSyst==1:
                    options.isMC, str(options.era),
                    do_syst=1, syst_var=sys + var,
                    weight_syst=True,
-                   sample=options.dataset#,
+                   sample=options.dataset,
+                   njetw=options.njetw#,
 #                   haddFileName=f"tree_{options.jobNum}_{sys}{var}.root",
                )
            )
