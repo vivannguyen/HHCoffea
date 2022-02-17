@@ -46,10 +46,25 @@ conda activate plotting
 
 Alternatively, you can pip install the packages listed inside the yml file.
 
-To plot run HHplotter.py. Options (python HHplotter.py --help) for input are histogram directory of files from coffea made above, input samples directory, input xsection yaml, year, output directory, option to run without background normalizations ('--nonorm'), and option to run in series (default runs in parallel). Example command:
+To plot run HHplotter.py. Options (python HHplotter.py --help) for input are histogram directory of files from coffea made above, input samples directory, input xsection yaml, year, muon or electron channel, output directory, option to run without background normalizations ('--nonorm'), and option to run in series (default runs in parallel). Example command:
 ```bash
-python HHplotter.py --sample_dir /eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v2/2017/ --hist_dir 2017-v2/ --xfile /afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2017.yaml --year 2017 --outdir plots_2017-v2
+python HHplotter.py --sample_dir /eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v3/2017/ --hist_dir 2017-v3/ --xfile /afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2017.yaml --year 2017 --outdir plots_2017-v3 --channel muon
 ```
+
+## Applying Btag Event Weight renormalization by jet bin
+This must be done once per channel and for all years. It requires running the coffea script and  running the plotting script, which outputs a JSON of the renormalizations by jet bin. Then the coffea script must be run again to make histograms with the renormalizations, and the plotting script is run once more as usual.
+
+After running coffea script the first time, get renormalizations by running the below (--btag must be run with --nonorm) for every year. By default, each year will write out to the same JSON. There's an option to overwrite this file (TODO: add channel to JSON):
+```bash
+python HHplotter.py --sample_dir /eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v3/2017/ --hist_dir 2017-v3/ --xfile /afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2017.yaml --outdir plots_2017-btag --year 2017 --channel muon --nonorm --btag --filter
+```
+
+Once you have the output JSON with weights for all years, run coffea producer again with option --njetw:
+```bash
+python3 condor_HH_WS.py --isMC=0/1 --era=201X --njetw --infile=XXX.root
+```
+
+Now the renormalizations are applied in the histograms, and the plotting script can be run as usual.
 
 ## Requirements
 
