@@ -251,21 +251,40 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8'
+                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+                         'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
+                         'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+                         'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
                     ]
                 if year == '2017':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8'
+                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
                     ]
                 if year == '2018':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8']
+                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
+                         'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
+                         'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8']
                 for idx, y in enumerate(y):
                     print(f'Yield {y}: {event_yields[y]*normalizations[y]}')
 
@@ -394,14 +413,14 @@ def estimate_background(all_event_yields, tol=1e-16, maxiter=100, disp=False):
         tt_data = tt['Data']
 
         while (error > tol) and (counter < maxiter):
-            dy_c_shape = residual_func(dy_c, 1, 1, 0, 0)
-            tt_c_shape = residual_func(tt_c, 1, 1, 0, 0)
+            tt_c_shape = residual_func(tt_c, dy_norm, tt_norm, 0, 0)
+            updated_tt_norm = np.sum((tt_data - (qcd_norm * tt_c_shape + dy_norm*tt['DY'] + tt['SMHiggs'] + tt['Other'])) / np.sum(tt['TT']))
 
-            updated_dy_norm = np.sum((dy_data - (qcd_norm * dy_c_shape + dy['TT'] + dy['SMHiggs'] + dy['Other'])) / np.sum(dy['DY'] + dDY))
-            updated_tt_norm = np.sum((tt_data - (qcd_norm * tt_c_shape + tt['DY'] + tt['SMHiggs'] + tt['Other'])) / np.sum(tt['TT'] + dTT))
+            dy_c_shape = residual_func(dy_c, dy_norm, updated_tt_norm, 0, 0)
+            updated_dy_norm = np.sum((dy_data - (qcd_norm * dy_c_shape + updated_tt_norm*dy['TT'] + dy['SMHiggs'] + dy['Other'])) / np.sum(dy['DY']))
 
-            qcd_b_val = np.sum(residual_func(qcd_b, dy_norm, tt_norm, dDY_qcd_b, dTT_qcd_b))
-            qcd_d_val = np.sum(residual_func(qcd_d, dy_norm, tt_norm, dDY_qcd_d, dTT_qcd_d))
+            qcd_b_val = np.sum(residual_func(qcd_b, updated_dy_norm, updated_tt_norm, dDY_qcd_b, dTT_qcd_b))
+            qcd_d_val = np.sum(residual_func(qcd_d, updated_dy_norm, updated_tt_norm, dDY_qcd_d, dTT_qcd_d))
 
             updated_qcd_norm = qcd_b_val / qcd_d_val
             error = np.sqrt((updated_qcd_norm - qcd_norm)**2 + np.abs(updated_dy_norm - dy_norm)**2 + np.abs(updated_tt_norm - tt_norm)**2)
@@ -480,7 +499,7 @@ def scale_cregions (df, qcd_norm, dy_norm, tt_norm):
     df = df.drop(c_samples_to_drop).reset_index()
     return df
 
-def new_plotting(event_yields, bkgd_norm, year, outdir='', print_yields=False):
+def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields=False):
     fig, axarr = plt.subplots(2, dpi=150, figsize=(6, 5), sharex=True,
                               gridspec_kw={'hspace': 0.05, 'height_ratios': (0.8,0.2)},
                               constrained_layout=False)
@@ -558,8 +577,18 @@ def new_plotting(event_yields, bkgd_norm, year, outdir='', print_yields=False):
                       color='black')
     lower.set_xlabel(name, x=1, ha='right')
     lower.set_ylabel("Data/MC", fontsize = 10)
-    lower.set_ylim(0, 2)
-    yerr = np.sqrt(Data) / MC 
+    lower.set_ylim(0.75, 1.25)
+    yerr = np.sqrt(Data) / MC
+
+    chi2 = 0
+    nBins = 0
+    ratio_check = np.isfinite(ratio)
+    for indx, r in enumerate(ratio):
+        if ratio_check[indx] and yerr[indx] > 0:
+            chi2 = chi2 + ((r-1)*(r-1))/(yerr[indx]*yerr[indx])
+            nBins = nBins + 1
+
+ 
     lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
@@ -581,8 +610,24 @@ def new_plotting(event_yields, bkgd_norm, year, outdir='', print_yields=False):
     )
 
     upper.text(
-        upper_label, max_y*1.08, f'{LUMI[year]:.1f} fb$^{-1}$ (13 TeV)',
+        upper_label, max_y*1.08, f'{LUMI[year]:.1f} fb$^{{-1}}$ (13 TeV)',
         fontsize=14,
+    )
+
+    if channel == 'electron':
+        text_channel = r'ee '+u'channel'
+    elif channel == 'muon':
+        text_channel = r'$\mu \mu$ '+u'channel'
+
+    upper.text(
+        lower_label*0.95, max_y*0.25, text_channel,
+        fontsize=14,
+    )
+
+
+    upper.text(
+        lower_label*0.95,max_y*0.1,r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
+        fontsize=8,
     )
 
     upper.legend()
@@ -625,6 +670,7 @@ def main():
                         help='Print yields for select samples.')
     args = parser.parse_args()
 
+
     if args.btag and not args.nonorm:
         raise ValueError('Cannot compute btag weights with normalizations.')
 
@@ -665,11 +711,11 @@ def main():
         num_cpus = os.cpu_count()
         batch_size = 1 #len(all_bins) // num_cpus + 1
         (Parallel(n_jobs=num_cpus, batch_size=batch_size)
-         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, args.year, outdir=outdir, print_yields=args.yields)
+         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
          for rowidx in range(df.shape[0])))
     else:
         for rowidx in range(df.shape[0]):
-            new_plotting(df.iloc[rowidx], bkgd_norm, args.year, outdir=outdir, print_yields=args.yields)
+            new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
 
