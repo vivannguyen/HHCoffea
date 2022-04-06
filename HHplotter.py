@@ -201,7 +201,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
+        for category in ['QCD', 'Radion', 'Graviton']:
+        #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
     df_dict = {}

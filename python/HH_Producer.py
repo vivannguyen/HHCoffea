@@ -184,6 +184,12 @@ class HH_NTuple(WSProducer):
             'region': ['signal'],
             'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
         },
+ #       'HH_cand_mass': {
+ #           'target': 'HH_cand_mass',
+ #           'name'  : 'HH_cand_mass',  # name to write to histogram
+ #           'region': ['signal'],
+ #           'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
+ #       },
         'Higgsbb_cand_mass': {
             'target': 'Higgsbb_cand_mass',
             'name'  : 'Higgsbb_cand_mass',  # name to write to histogram
@@ -196,12 +202,42 @@ class HH_NTuple(WSProducer):
             'region': ['signal'],
             'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
         },
+        'leading_Hbb_btag': {
+            'target': 'leading_Hbb_btag',
+            'name'  : 'leading_Hbb_btag',  # name to write to histogram
+            'region': ['signal'],
+            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'trailing_Hbb_btag': {
+            'target': 'trailing_Hbb_btag',
+            'name'  : 'trailing_Hbb_btag',  # name to write to histogram
+            'region': ['signal'],
+            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'leading_jet_qgl': {
+            'target': 'leading_jet_qgl',
+            'name'  : 'leading_jet_qgl',  # name to write to histogram
+            'region': ['signal'],
+            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'trailing_jet_qgl': {
+            'target': 'trailing_jet_qgl',
+            'name'  : 'trailing_jet_qgl',  # name to write to histogram
+            'region': ['signal'],
+            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
         'met_pt': {
             'target': 'met_pt',
             'name'  : 'met_pt',  # name to write to histogram
             'region': ['signal'],
             'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
         },
+ #       'jetHT': {
+ #           'target': 'jetHT',
+ #           'name'  : 'jetHT',  # name to write to histogram
+ #           'region': ['signal'],
+ #           'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
+ #       },
         'dR_l1l2': {
             'target': 'dR_l1l2',
             'name'  : 'dR_l1l2',  # name to write to histogram
@@ -335,6 +371,12 @@ class HH_NTuple(WSProducer):
             'region': ['QCD_C'],
             'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
         },
+#        'HH_cand_mass_QCD_C': {
+#            'target': 'HH_cand_mass',
+#            'name'  : 'HH_cand_mass_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
+#        },
         'Higgsbb_cand_mass_QCD_C': {
             'target': 'Higgsbb_cand_mass',
             'name'  : 'Higgsbb_cand_mass_QCD_C',  # name to write to histogram
@@ -347,12 +389,42 @@ class HH_NTuple(WSProducer):
             'region': ['QCD_C'],
             'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
         },
+        'leading_Hbb_btag_QCD_C': {
+            'target': 'leading_Hbb_btag',
+            'name'  : 'leading_Hbb_btag_QCD_C',  # name to write to histogram
+            'region': ['QCD_C'],
+            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'trailing_Hbb_btag_QCD_C': {
+            'target': 'trailing_Hbb_btag',
+            'name'  : 'trailing_Hbb_btag_QCD_C',  # name to write to histogram
+            'region': ['QCD_C'],
+            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'leading_jet_qgl_QCD_C': {
+            'target': 'leading_jet_qgl',
+            'name'  : 'leading_jet_qgl_QCD_C',  # name to write to histogram
+            'region': ['QCD_C'],
+            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
+        'trailing_jet_qgl_QCD_C': {
+            'target': 'trailing_jet_qgl',
+            'name'  : 'trailing_jet_qgl_QCD_C',  # name to write to histogram
+            'region': ['QCD_C'],
+            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+        },
         'met_pt_QCD_C': {
             'target': 'met_pt',
             'name'  : 'met_pt_QCD_C',  # name to write to histogram
             'region': ['QCD_C'],
             'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
         },
+  #      'jetHT_QCD_C': {
+  #          'target': 'jetHT',
+  #          'name'  : 'jetHT_QCD_C',  # name to write to histogram
+  #          'region': ['QCD_C'],
+  #          'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
+  #      },
         'dR_l1l2_QCD_C': {
             'target': 'dR_l1l2',
             'name'  : 'dR_l1l2_QCD_C',  # name to write to histogram
@@ -443,6 +515,7 @@ class HH_NTuple(WSProducer):
             'region': ['QCD_C'],
             'axis': {'label': 'cosThetaZllHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
         },
+# For btag Event Weight
         'ngood_jets': {
             'target': 'ngood_jets',
             'name'  : 'ngood_jets',  # name to write to histogram
