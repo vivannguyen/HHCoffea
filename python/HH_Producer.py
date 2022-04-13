@@ -7,7 +7,13 @@ import json
 from coffea.hist import Hist, Bin, export1d
 from coffea.processor import ProcessorABC, LazyDataFrame, dict_accumulator
 from uproot3 import recreate
+
+import awkward as ak
 import numpy as np
+import pandas as pd
+import xgboost as xgb
+import yaml
+
 
 class WSProducer(ProcessorABC):
     """
@@ -53,6 +59,18 @@ class WSProducer(ProcessorABC):
         return self._accumulator
 
     def process(self, df, *args):
+        features = ['met_pt','Higgsbb_cand_pt','Higgsbb_cand_mass','Zlep_cand_mass',
+                    'leading_Hbb_pt','leading_Hbb_btag','trailing_Hbb_pt','trailing_Hbb_btag',
+                    'dR_l1l2','dR_l1j1','dR_l1j2','dR_l1b1','dR_l1b2']
+
+        X = df[features]
+        X = ak.to_numpy(X).tolist()
+        #load BDT model
+        model = xgb.XGBClassifier()
+        model.load_model('models/test')
+        bdtscore=model.predict_proba(X)[:,1]
+        df['BDTscore']=bdtscore
+
         output = self.accumulator.identity()
 
         weight = self.weighting(df)
@@ -533,6 +551,13 @@ class HH_NTuple(WSProducer):
             'name'  : 'ngood_jets_nobtagSF',  # name to write to histogram
             'region': ['signal_btag'],
             'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+# BDT score
+        'h_bdtscore' : {
+            'target': 'BDTscore',
+            'name': 'BDTscore',
+            'region': ['signal'],
+            'axis': {'label': 'BDTscore','n_or_arr':20, 'lo':0., 'hi':1.}
         },
     }
     selection = {
