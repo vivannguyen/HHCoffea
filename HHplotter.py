@@ -516,6 +516,15 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     event_yields['DY'] *= bkgd_norm[1]
     event_yields['TT'] *= bkgd_norm[2]
 
+    # For comparing to data cards
+    if event_yields['sample_name']=="BDTscore":
+        print('DY yield: ', event_yields['DY'].sum())
+        print('TT yield: ', event_yields['TT'].sum())
+        print('SMHiggs yield: ', event_yields['SMHiggs'].sum())
+        print('QCD yield: ', event_yields['QCD_estimate'].sum())
+        print('Other yield: ', event_yields['Other'].sum())
+        print('Data yield: ', event_yields['Data'].sum())
+
     mc_categories = ['DY', 'TT', 'SMHiggs', 'QCD_estimate']
     MC = event_yields[mc_categories].sum()
     Data = event_yields['Data']
@@ -719,6 +728,17 @@ def main():
             new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
+
+    fname = f'QCD_estimate_{args.year}.root'
+    f = uproot.recreate(fname, compression=uproot.ZLIB(4))
+    for rowidx in range(df.shape[0]):
+        QCD_estimate = df.iloc[rowidx]['QCD_estimate']
+        name = df.iloc[rowidx]['sample_name']
+        bins = df.iloc[rowidx]['bins']
+        f[f'{name}'] = np.histogram(QCD_estimate, bins=bins)
+    f.close()
+
+    logging.info(f'QCD estimate histograms saved to root file {fname}.')
 
 if __name__ == '__main__':
 	main()

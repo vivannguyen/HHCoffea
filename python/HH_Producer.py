@@ -711,7 +711,7 @@ class HH_NTuple(WSProducer):
                 weight = weight * event.w_muon_SF
 
             # Electron SF
-            if "ElecronSF" in self.syst_suffix:
+            if "ElectronSF" in self.syst_suffix:
                 if "Up" in self.syst_suffix:
                     weight = weight * event.w_electron_SFUp
                 else:
