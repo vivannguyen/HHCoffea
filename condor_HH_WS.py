@@ -59,8 +59,18 @@ if float(options.nevt) > 0:
     print((" passing this cut and : ", options.nevt))
     pre_selection += ' && (Entry$ < {})'.format(options.nevt)
 
-pro_syst = []
-ext_syst = []
+pro_syst = ["ElectronEn", "MuonEn"] #, "", "jer"]
+
+ext_syst = ["puWeight", "PDF", "MuonSF", "ElectronSF", "TriggerSFWeight", "QCDScale0w", "QCDScale1w", "QCDScale2w"]
+
+# extension to ext_syst
+btag_syst_up = ["w_btag_SF_sys_up_hf", "w_btag_SF_sys_up_lf", "w_btag_SF_sys_up_cferr1", "w_btag_SF_sys_up_cferr2"]
+btag_syst_down = ["w_btag_SF_sys_down_hf", "w_btag_SF_sys_down_lf", "w_btag_SF_sys_down_cferr1", "w_btag_SF_sys_down_cferr2"]
+
+btag_uncorr_syst_up = ["w_btag_SF_sys_up_hfstats1", "w_btag_SF_sys_up_hfstats2", "w_btag_SF_sys_up_lfstats1", "w_btag_SF_sys_up_lfstats2"]
+btag_uncorr_syst_down = ["w_btag_SF_sys_down_hfstats1", "w_btag_SF_sys_down_hfstats2", "w_btag_SF_sys_down_lfstats1", "w_btag_SF_sys_down_lfstats2"]
+
+btag_syst = btag_syst_up + btag_syst_down + btag_uncorr_syst_up + btag_uncorr_syst_down
 
 modules_era = []
 
@@ -72,7 +82,7 @@ if options.isMC and options.doSyst==1:
            modules_era.append(HH_NTuple(options.isMC, str(options.era), do_syst=1,
                                     syst_var=sys + var, sample=options.dataset, njetw=options.njetw))#,
 #                                    haddFileName=f"tree_{options.jobNum}_{sys}{var}.root"))
-   
+
    for sys in ext_syst:
        for var in ["Up", "Down"]:
            modules_era.append(
@@ -85,6 +95,17 @@ if options.isMC and options.doSyst==1:
 #                   haddFileName=f"tree_{options.jobNum}_{sys}{var}.root",
                )
            )
+
+   for sys in btag_syst:
+       modules_era.append(
+           HH_NTuple(
+               options.isMC, str(options.era),
+               do_syst=1, syst_var=sys,
+               weight_syst=True,
+               sample=options.dataset,
+               njetw=options.njetw#,
+           )
+       )
 
 for i in modules_era:
     print("modules : ", i)

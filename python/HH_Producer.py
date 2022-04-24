@@ -568,7 +568,7 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjets     >  0",
+                "event.ngood_bjets{syst}     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
