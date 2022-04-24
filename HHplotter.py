@@ -732,10 +732,11 @@ def main():
     fname = f'QCD_estimate_{args.year}.root'
     f = uproot.recreate(fname, compression=uproot.ZLIB(4))
     for rowidx in range(df.shape[0]):
-        QCD_estimate = df.iloc[rowidx]['QCD_estimate']
+        qcd_estimate = df.iloc[rowidx]['QCD_estimate']
         name = df.iloc[rowidx]['sample_name']
         bins = df.iloc[rowidx]['bins']
-        f[f'{name}'] = np.histogram(QCD_estimate, bins=bins)
+        binc = bins[:-1] + np.diff(bins) * 0.5
+        f[f'{name}'] = np.histogram(binc, bins=bins, weights=qcd_estimate)
     f.close()
 
     logging.info(f'QCD estimate histograms saved to root file {fname}.')

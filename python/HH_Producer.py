@@ -557,7 +557,13 @@ class HH_NTuple(WSProducer):
             'target': 'BDTscore',
             'name': 'BDTscore',
             'region': ['signal'],
-            'axis': {'label': 'BDTscore','n_or_arr':20, 'lo':0., 'hi':1.}
+            'axis': {'label': 'BDTscore', 'n_or_arr': 100, 'lo': 0., 'hi': 1.}
+        },
+        'h_bdtscore_QCD_C': {
+            'target': 'BDTscore',
+            'name'  : 'BDTscore_QCD_C',  # name to write to histogram
+            'region': ['QCD_C'],
+            'axis': {'label': 'BDTscore', 'n_or_arr': 100, 'lo': 0., 'hi': 1.}
         },
     }
     selection = {
