@@ -532,6 +532,12 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     name = event_yields['sample_name']
     bins = event_yields['bins']
 
+    if event_yields['sample_name']=="BDTscore":
+        bins = bins[:-25]
+        MC = MC[:-25]
+        Data = Data[:-25]
+        Other = Other[:-25]
+
     MC += Other
 
     # The first bin has a value of 0 and will give a warning.
@@ -542,11 +548,18 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     upper.errorbar(binc, Data, xerr = None, yerr = np.sqrt(Data), fmt = 'o',
                    zorder=10, color='black', label='Data', markersize=3)
-    all_weights = np.vstack([event_yields['SMHiggs'],
-                             event_yields['Other'],
-                             event_yields['QCD_estimate'],
-                             event_yields['DY'],
-                             event_yields['TT']]).transpose()
+    if event_yields['sample_name']=="BDTscore":
+        all_weights = np.vstack([event_yields['SMHiggs'][:-25],
+                                 event_yields['Other'][:-25],
+                                 event_yields['QCD_estimate'][:-25],
+                                 event_yields['DY'][:-25],
+                                 event_yields['TT'][:-25]]).transpose()
+    else:
+        all_weights = np.vstack([event_yields['SMHiggs'],
+                                 event_yields['Other'],
+                                 event_yields['QCD_estimate'],
+                                 event_yields['DY'],
+                                 event_yields['TT']]).transpose()
     all_x = np.vstack([binc] * all_weights.shape[1]).transpose()
 
     COLORMAP = {'SMhiggs': COLORS[0],
@@ -563,8 +576,11 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                histtype='stepfilled', edgecolor='black', zorder=1,
                stacked=True, color=plotting_colors, label=labels)
 
-    upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+    if event_yields['sample_name']=="BDTscore":
+        upper.fill_between(binup, MC - np.sqrt(event_yields['var'][:-25]), MC + np.sqrt(event_yields['var'][:-25]), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
 
+    else:
+        upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
     upper.set_yscale("log")
     upper.set_ylim([0.01, 1000000])
 
@@ -712,7 +728,15 @@ def main():
             btag_path = os.path.join(os.getcwd(), Path(args.btag_filename).stem + '.jsonl')
             btag_ratio(df, args.year, btag_path, args.btag_overwrite)
     else:
-        bkgd_norm = estimate_background(df)
+        #bkgd_norm = estimate_background(df)
+        if args.channel == 'muon':
+            if args.year == '2016': bkgd_norm = (1.46, 1.33, 0.974)
+            if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.22)
+            if args.year == '2018': bkgd_norm = (1.53, 1.65, 1.12)
+        if args.channel == 'electron':
+            if args.year == '2016': bkgd_norm = (1.01, 1.42, 1.01)
+            if args.year == '2017': bkgd_norm = (1.25, 1.74, 1.14)
+            if args.year == '2018': bkgd_norm = (1.08, 1.59, 1.04)
         df = scale_cregions(df, *bkgd_norm)
 
     logging.info('Making plots.')
