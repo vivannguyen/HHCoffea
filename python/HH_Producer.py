@@ -79,6 +79,7 @@ class WSProducer(ProcessorABC):
         if self.njet_weights is not None:
             weight = self.my_btag_weighting(df, btag_weight, self.njet_weights)
         for h, hist in list(self.histograms.items()):
+            print("go to sleep", hist)
             for region in hist['region']:
                 name = self.naming_schema(hist['name'], region)
                 selec = self.passbut(df, hist['target'], region)
@@ -568,115 +569,115 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjets{syst}     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.Zlep_cand_mass > 15",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 1",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.Zlep_cand_mass{sys} > 15",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20"
             ],
             "signal_btag" : [
-                "event.lep_category    == 1",
-                "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.Zlep_cand_mass > 15",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20"
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 1",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.Zlep_cand_mass{sys} > 15",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20"
             ],
             "QCD_B" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 2",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.Zlep_cand_mass > 15",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 2",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.Zlep_cand_mass{sys} > 15",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20"
             ],
             "QCD_C" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.Zlep_cand_mass > 15",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 3",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.Zlep_cand_mass{sys} > 15",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20"
             ],
             "QCD_D" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 4",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.Zlep_cand_mass > 15",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 4",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.Zlep_cand_mass{sys} > 15",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20"
             ],
             "DYcontrol" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.Zlep_cand_mass > 80",
-                "event.Zlep_cand_mass < 100",
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 1",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20",
+                "event.Zlep_cand_mass{sys} > 80",
+                "event.Zlep_cand_mass{sys} < 100",
             ],
             "DYcontrol_QCD_C" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.Zlep_cand_mass > 80",
-                "event.Zlep_cand_mass < 100",
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 3",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20",
+                "event.Zlep_cand_mass{sys} > 80",
+                "event.Zlep_cand_mass{sys} < 100",
             ],
             "TTcontrol" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.Zlep_cand_mass > 100",
-                "event.met_pt > 100"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 1",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20",
+                "event.Zlep_cand_mass{sys} > 100",
+                "event.met_pt{sys} > 100"
             ],
             "TTcontrol_QCD_C" : [
-                "event.ngood_bjets     >  0",
-                "event.lep_category    == 1",
-                "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
-                "event.leading_Hbb_pt > 20",
-                "event.trailing_Hbb_pt > 20",
-                "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.Zlep_cand_mass > 100",
-                "event.met_pt > 100"
+                "event.ngood_bjets{sys}     >  0",
+                "event.lep_category{sys}    == 1",
+                "event.event_category{sys}    == 3",
+                "event.leading_lep_pt{sys}  > 20",
+                "event.trailing_lep_pt{sys} > 10",
+                "event.leading_Hbb_pt{sys} > 20",
+                "event.trailing_Hbb_pt{sys} > 20",
+                "event.leading_jet_pt{sys} > 20",
+                "event.trailing_jet_pt{sys} > 20",
+                "event.Zlep_cand_mass{sys} > 100",
+                "event.met_pt{sys} > 100"
             ],
         }
 
@@ -704,6 +705,32 @@ class HH_NTuple(WSProducer):
                         weight = weight * event.pdfw_Up
                     else:
                         weight = weight * event.pdfw_Down
+                except:
+                    pass
+
+            # QCD Scale weights
+            if "QCDScale0" in self.syst_suffix:
+                try:
+                    if "Up" in self.syst_suffix:
+                        weight *= event.QCDScale0wUp
+                    else:
+                        weight *= event.QCDScale0wDown
+                except:
+                    pass
+            if "QCDScale1" in self.syst_suffix:
+                try:
+                    if "Up" in self.syst_suffix:
+                        weight *= event.QCDScale1wUp
+                    else:
+                        weight *= event.QCDScale1wDown
+                except:
+                    pass
+            if "QCDScale2" in self.syst_suffix:
+                try:
+                    if "Up" in self.syst_suffix:
+                        weight *= event.QCDScale2wUp
+                    else:
+                        weight *= event.QCDScale2wDown
                 except:
                     pass
 
@@ -750,7 +777,37 @@ class HH_NTuple(WSProducer):
 
     def btag_weighting(self, event: LazyDataFrame, weight):
         if self.isMC:
-            weight = weight * event.w_btag_SF
+            if 'cferr1' in self.syst_suffix:
+                if "up" in self.syst_suffix:
+                    weight = weight * event.w_btag_SF_sys_up_cferr1
+                else:
+                    weight = weight * event.w_btag_SF_sys_down_cferr1
+            else:
+                weight = weight * event.w_btag_SF
+
+            if 'cferr2' in self.syst_suffix:
+                if "up" in self.syst_suffix:
+                    weight = weight * event.w_btag_SF_sys_up_cferr2
+                else:
+                    weight = weight * event.w_btag_SF_sys_down_cferr2
+            else:
+                weight = weight * event.w_btag_SF
+
+            if 'hf' in self.syst_suffix:
+                if "up" in self.syst_suffix:
+                    weight = weight * event.w_btag_SF_sys_up_hf
+                else:
+                    weight = weight * event.w_btag_SF_sys_down_hf
+            else:
+                weight = weight * event.w_btag_SF
+
+            if 'lf' in self.syst_suffix:
+                if "up" in self.syst_suffix:
+                    weight = weight * event.w_btag_SF_sys_up_lf
+                else:
+                    weight = weight * event.w_btag_SF_sys_down_lf
+            else:
+                weight = weight * event.w_btag_SF
 
         return weight
 
