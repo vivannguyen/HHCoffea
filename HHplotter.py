@@ -246,48 +246,52 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['sample_name'].append(name)
 
         if print_yields:
-            if name == 'event_yield_A':
+            if name == 'BDTscore':
                 if year == '2016':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
-                         'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
-                         'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-                         'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
-                    ]
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         #'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+                         #'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
+                         #'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+                         #'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
+                        ]
                 if year == '2017':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
-                    ]
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         #'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
+                        ]
                 if year == '2018':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
-                         'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
-                         'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8']
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         #'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
+                         #'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
+                         #'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'
+                        ]
                 for idx, y in enumerate(y):
-                    print(f'Yield {y}: {event_yields[y]*normalizations[y]}')
+                    print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
 
     logging.info('Finished getting bins and event yields.')
     return pd.DataFrame(df_dict)
@@ -520,7 +524,11 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     if event_yields['sample_name']=="BDTscore":
         print('DY yield: ', event_yields['DY'].sum())
         print('TT yield: ', event_yields['TT'].sum())
+        print('SingleTop yield: ', event_yields['SingleTop'].sum())
         print('SMHiggs yield: ', event_yields['SMHiggs'].sum())
+        print('WJets yield: ', event_yields['Wjets'].sum())
+        print('VV yield: ', event_yields['VV'].sum())
+        print('ttV yield: ', event_yields['ttV'].sum())
         print('QCD yield: ', event_yields['QCD_estimate'].sum())
         print('Other yield: ', event_yields['Other'].sum())
         print('Data yield: ', event_yields['Data'].sum())

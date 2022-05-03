@@ -540,6 +540,68 @@ class HH_NTuple(WSProducer):
             'region': ['signal_btag'],
             'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
         },
+        'ngood_jets_signal': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_signal',  # name to write to histogram
+            'region': ['signal'],
+            'axis': {'label': 'ngood_jets_signal', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut0': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut0',  # name to write to histogram
+            'region': ['tt_cut0'],
+            'axis': {'label': 'ngood_jets_cut0', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut1': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut1',  # name to write to histogram
+            'region': ['tt_cut1'],
+            'axis': {'label': 'ngood_jets_cut1', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut2': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut2',  # name to write to histogram
+            'region': ['tt_cut2'],
+            'axis': {'label': 'ngood_jets_cut2', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut3': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut3',  # name to write to histogram
+            'region': ['tt_cut3'],
+            'axis': {'label': 'ngood_jets_cut3', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut4': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut4',  # name to write to histogram
+            'region': ['tt_cut4'],
+            'axis': {'label': 'ngood_jets_cut4', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut5': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut5',  # name to write to histogram
+            'region': ['tt_cut5'],
+            'axis': {'label': 'ngood_jets_cut5', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut6': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut6',  # name to write to histogram
+            'region': ['tt_cut6'],
+            'axis': {'label': 'ngood_jets_cut6', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut7': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut7',  # name to write to histogram
+            'region': ['tt_cut7'],
+            'axis': {'label': 'ngood_jets_cut7', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+        'ngood_jets_cut8': {
+            'target': 'ngood_jets',
+            'name'  : 'ngood_jets_cut8',  # name to write to histogram
+            'region': ['tt_cut8'],
+            'axis': {'label': 'ngood_jets_cut8', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+        },
+
+
         'ngood_jets_btagSF': {
             'target': 'ngood_jets',
             'name'  : 'ngood_jets_btagSF',  # name to write to histogram
@@ -568,7 +630,91 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjetsT     >  0",
+                "event.ngood_bjets     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut0" : [
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut1" : [
+                "event.ngood_bjets     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut2" : [
+                "event.ngood_bjets     >  1",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut3" : [
+                "event.ngood_bjetsM     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut4" : [
+                "event.ngood_bjetsM     >  1",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20"
+            ],
+            "tt_cut5" : [
+                "event.ngood_bjetsM     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20",
+                "event.met_pt < 40 "
+            ],
+            "tt_cut6" : [
+                "event.ngood_bjetsM     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
@@ -579,6 +725,32 @@ class HH_NTuple(WSProducer):
                 "event.leading_jet_pt > 20",
                 "event.trailing_jet_pt > 20",
                 "event.met_pt < 75 "
+            ],
+            "tt_cut7" : [
+                "event.ngood_bjetsM     >  0",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20",
+                "event.met_pt < 100 "
+            ],
+            "tt_cut8" : [
+                "event.ngood_bjetsM     >  1",
+                "event.lep_category    == 1",
+                "event.event_category    == 1",
+                "event.leading_lep_pt  > 20",
+                "event.trailing_lep_pt > 10",
+                "event.Zlep_cand_mass > 15",
+                "event.leading_Hbb_pt > 20",
+                "event.trailing_Hbb_pt > 20",
+                "event.leading_jet_pt > 20",
+                "event.trailing_jet_pt > 20",
+                "event.met_pt < 100 "
             ],
             "signal_btag" : [
                 "event.lep_category    == 1",
@@ -592,7 +764,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_B" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 2",
                 "event.leading_lep_pt  > 20",
@@ -604,7 +776,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_C" : [
-                "event.ngood_bjetsT     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 20",
@@ -613,11 +785,10 @@ class HH_NTuple(WSProducer):
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.met_pt < 75 "
+                "event.trailing_jet_pt > 20"
             ],
             "QCD_D" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 4",
                 "event.leading_lep_pt  > 20",
@@ -629,7 +800,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "DYcontrol" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
@@ -642,7 +813,7 @@ class HH_NTuple(WSProducer):
                 "event.Zlep_cand_mass < 100",
             ],
             "DYcontrol_QCD_C" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 20",
@@ -655,7 +826,7 @@ class HH_NTuple(WSProducer):
                 "event.Zlep_cand_mass < 100",
             ],
             "TTcontrol" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
@@ -668,7 +839,7 @@ class HH_NTuple(WSProducer):
                 "event.met_pt > 100"
             ],
             "TTcontrol_QCD_C" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 20",

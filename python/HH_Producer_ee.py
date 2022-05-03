@@ -60,14 +60,14 @@ class WSProducer(ProcessorABC):
 
     def process(self, df, *args):
         features = ['met_pt','Higgsbb_cand_pt','Higgsbb_cand_mass','Zlep_cand_mass',
-                    'leading_Hbb_pt','leading_Hbb_btag','trailing_Hbb_pt','trailing_Hbb_btag',
-                    'dR_l1l2','dR_l1j1','dR_l1j2','dR_l1b1','dR_l1b2']
+                    'leading_Hbb_pt','leading_Hbb_btag','trailing_Hbb_btag',
+                    'dR_l1l2','dR_l1j1','dR_l1j2','dR_l1b1','dR_l1b2','dR_b1b2']
 
         X = df[features]
         X = ak.to_numpy(X).tolist()
         #load BDT model
         model = xgb.XGBClassifier()
-        model.load_model('models/test')
+        model.load_model('models/test-ee')
         bdtscore=model.predict_proba(X)[:,1]
         df['BDTscore']=bdtscore
 
@@ -568,23 +568,22 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjetsT     >  0",
-                "event.lep_category    == 1",
+                "event.ngood_bjetsM     >  0",
+                "event.lep_category    == 2",
                 "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.Zlep_cand_mass > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.met_pt < 75 "
+                "event.trailing_jet_pt > 20"
             ],
             "signal_btag" : [
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.Zlep_cand_mass > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
@@ -593,10 +592,10 @@ class HH_NTuple(WSProducer):
             ],
             "QCD_B" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 2",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.Zlep_cand_mass > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
@@ -604,24 +603,23 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_C" : [
-                "event.ngood_bjetsT     >  0",
-                "event.lep_category    == 1",
+                "event.ngood_bjetsM     >  0",
+                "event.lep_category    == 2",
                 "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.Zlep_cand_mass > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.met_pt < 75 "
+                "event.trailing_jet_pt > 20"
             ],
             "QCD_D" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 4",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.Zlep_cand_mass > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
@@ -630,10 +628,10 @@ class HH_NTuple(WSProducer):
             ],
             "DYcontrol" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
@@ -643,10 +641,10 @@ class HH_NTuple(WSProducer):
             ],
             "DYcontrol_QCD_C" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
@@ -656,10 +654,10 @@ class HH_NTuple(WSProducer):
             ],
             "TTcontrol" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 1",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
@@ -669,10 +667,10 @@ class HH_NTuple(WSProducer):
             ],
             "TTcontrol_QCD_C" : [
                 "event.ngood_bjetsM     >  0",
-                "event.lep_category    == 1",
+                "event.lep_category    == 2",
                 "event.event_category    == 3",
-                "event.leading_lep_pt  > 20",
-                "event.trailing_lep_pt > 10",
+                "event.leading_lep_pt  > 25",
+                "event.trailing_lep_pt > 15",
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",

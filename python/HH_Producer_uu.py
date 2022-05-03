@@ -568,7 +568,7 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjetsT     >  0",
+                "event.ngood_bjetsM     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 20",
@@ -577,8 +577,7 @@ class HH_NTuple(WSProducer):
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.met_pt < 75 "
+                "event.trailing_jet_pt > 20"
             ],
             "signal_btag" : [
                 "event.lep_category    == 1",
@@ -604,7 +603,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_C" : [
-                "event.ngood_bjetsT     >  0",
+                "event.ngood_bjetsM     >  0",
                 "event.lep_category    == 1",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 20",
@@ -613,8 +612,7 @@ class HH_NTuple(WSProducer):
                 "event.leading_Hbb_pt > 20",
                 "event.trailing_Hbb_pt > 20",
                 "event.leading_jet_pt > 20",
-                "event.trailing_jet_pt > 20",
-                "event.met_pt < 75 "
+                "event.trailing_jet_pt > 20"
             ],
             "QCD_D" : [
                 "event.ngood_bjetsM     >  0",
