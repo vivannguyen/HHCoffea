@@ -79,7 +79,6 @@ class WSProducer(ProcessorABC):
         if self.njet_weights is not None:
             weight = self.my_btag_weighting(df, btag_weight, self.njet_weights)
         for h, hist in list(self.histograms.items()):
-            print("go to sleep", hist)
             for region in hist['region']:
                 name = self.naming_schema(hist['name'], region)
                 selec = self.passbut(df, hist['target'], region)
@@ -113,446 +112,428 @@ class HH_NTuple(WSProducer):
     zlep_bin = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 132, 146, 164, 184, 209, 239, 275, 318, 370, 432]
 
     histograms = {
-        'Zlep_cand_mass_QCD_B': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_QCD_B',  # name to write to histogram
-            'region': ['QCD_B'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-        },
-        'Zlep_cand_mass_QCD_C': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-        },
-        'Zlep_cand_mass_QCD_D': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_QCD_D',  # name to write to histogram
-            'region': ['QCD_D'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-        },
-        'Zlep_cand_mass_DYcontrol': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_DYcontrol',  # name to write to histogram
-            'region': ['DYcontrol'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
-        },
-        'Zlep_cand_mass_DYcontrol_QCD_C': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_DYcontrol_QCD_C',  # name to write to histogram
-            'region': ['DYcontrol_QCD_C'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
-        },
-        'Zlep_cand_mass_TTcontrol': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_TTcontrol',  # name to write to histogram
-            'region': ['TTcontrol'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
-        },
-        'Zlep_cand_mass_TTcontrol_QCD_C': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass_TTcontrol_QCD_C',  # name to write to histogram
-            'region': ['TTcontrol_QCD_C'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
-        },
-        'Zlep_cand_mass': {
-            'target': 'Zlep_cand_mass',
-            'name'  : 'Zlep_cand_mass',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-        },
-        'Zlep_cand_pt': {
-            'target': 'Zlep_cand_pt',
-            'name'  : 'Zlep_cand_pt',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'Zlep_cand_eta': {
-            'target': 'Zlep_cand_eta',
-            'name'  : 'Zlep_cand_eta',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'Zlep_cand_eta', 'n_or_arr': 190, 'lo': -9, 'hi': 9}
-        },
-        'leading_lep_pt': {
-            'target': 'leading_lep_pt',
-            'name'  : 'leading_lep_pt',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'leading_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
-        },
-        'leading_lep_eta': {
-            'target': 'leading_lep_eta',
-            'name'  : 'leading_lep_eta',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'leading_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
-        },
-        'trailing_lep_pt': {
-            'target': 'trailing_lep_pt',
-            'name'  : 'trailing_lep_pt',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'trailing_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
-        },
-        'trailing_lep_eta': {
-            'target': 'trailing_lep_eta',
-            'name'  : 'trailing_lep_eta',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'trailing_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
-        },
-        'Zjet_cand_mass': {
-            'target': 'Zjet_cand_mass',
-            'name'  : 'Zjet_cand_mass',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
- #       'HH_cand_mass': {
- #           'target': 'HH_cand_mass',
- #           'name'  : 'HH_cand_mass',  # name to write to histogram
- #           'region': ['signal'],
- #           'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
- #       },
-        'Higgsbb_cand_mass': {
-            'target': 'Higgsbb_cand_mass',
-            'name'  : 'Higgsbb_cand_mass',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'Higgsbb_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'HiggsZZ_cand_mass': {
-            'target': 'HiggsZZ_cand_mass',
-            'name'  : 'HiggsZZ_cand_mass',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'leading_Hbb_btag': {
-            'target': 'leading_Hbb_btag',
-            'name'  : 'leading_Hbb_btag',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'trailing_Hbb_btag': {
-            'target': 'trailing_Hbb_btag',
-            'name'  : 'trailing_Hbb_btag',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'leading_jet_qgl': {
-            'target': 'leading_jet_qgl',
-            'name'  : 'leading_jet_qgl',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'trailing_jet_qgl': {
-            'target': 'trailing_jet_qgl',
-            'name'  : 'trailing_jet_qgl',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'met_pt': {
-            'target': 'met_pt',
-            'name'  : 'met_pt',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
-        },
- #       'jetHT': {
- #           'target': 'jetHT',
- #           'name'  : 'jetHT',  # name to write to histogram
- #           'region': ['signal'],
- #           'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
- #       },
-        'dR_l1l2': {
-            'target': 'dR_l1l2',
-            'name'  : 'dR_l1l2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l1l2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_j1j2': {
-            'target': 'dR_j1j2',
-            'name'  : 'dR_j1j2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_j1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_b1b2': {
-            'target': 'dR_b1b2',
-            'name'  : 'dR_b1b2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_b1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1b1': {
-            'target': 'dR_l1b1',
-            'name'  : 'dR_l1b1',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l1b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1b2': {
-            'target': 'dR_l1b2',
-            'name'  : 'dR_l1b2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2b1': {
-            'target': 'dR_l2b1',
-            'name'  : 'dR_l2b1',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l2b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2b2': {
-            'target': 'dR_l2b2',
-            'name'  : 'dR_l2b2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l2b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1j1': {
-            'target': 'dR_l1j1',
-            'name'  : 'dR_l1j1',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l1j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1j2': {
-            'target': 'dR_l1j2',
-            'name'  : 'dR_l1j2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2j1': {
-            'target': 'dR_l2j1',
-            'name'  : 'dR_l2j1',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l2j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2j2': {
-            'target': 'dR_l2j2',
-            'name'  : 'dR_l2j2',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'dR_l2j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'cosThetaCS': {
-            'target': 'cosThetaCS',
-            'name'  : 'cosThetaCS',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'cosThetaCS', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetabHbb': {
-            'target': 'cosThetabHbb',
-            'name'  : 'cosThetabHbb',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'cosThetabHbb', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetaZjjHzz': {
-            'target': 'cosThetaZjjHzz',
-            'name'  : 'cosThetaZjjHzz',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'cosThetaZjjHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetaZllHzz': {
-            'target': 'cosThetaZllHzz',
-            'name'  : 'cosThetaZllHzz',  # name to write to histogram
-            'region': ['signal'],
-            'axis': {'label': 'cosThetaZllHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-# QCD C Region
-        'Zlep_cand_pt_QCD_C': {
-            'target': 'Zlep_cand_pt',
-            'name'  : 'Zlep_cand_pt_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'Zlep_cand_eta_QCD_C': {
-            'target': 'Zlep_cand_eta',
-            'name'  : 'Zlep_cand_eta_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'Zlep_cand_eta', 'n_or_arr': 190, 'lo': -9, 'hi': 9}
-        },
-        'leading_lep_pt_QCD_C': {
-            'target': 'leading_lep_pt',
-            'name'  : 'leading_lep_pt_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'leading_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
-        },
-        'leading_lep_eta_QCD_C': {
-            'target': 'leading_lep_eta',
-            'name'  : 'leading_lep_eta_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'leading_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
-        },
-        'trailing_lep_pt_QCD_C': {
-            'target': 'trailing_lep_pt',
-            'name'  : 'trailing_lep_pt_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'trailing_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
-        },
-        'trailing_lep_eta_QCD_C': {
-            'target': 'trailing_lep_eta',
-            'name'  : 'trailing_lep_eta_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'trailing_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
-        },
-        'Zjet_cand_mass_QCD_C': {
-            'target': 'Zjet_cand_mass',
-            'name'  : 'Zjet_cand_mass_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-#        'HH_cand_mass_QCD_C': {
-#            'target': 'HH_cand_mass',
-#            'name'  : 'HH_cand_mass_QCD_C',  # name to write to histogram
-#            'region': ['QCD_C'],
-#            'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
+#        'Zlep_cand_mass_QCD_B': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_QCD_B',  # name to write to histogram
+#            'region': ['QCD_B'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
 #        },
-        'Higgsbb_cand_mass_QCD_C': {
-            'target': 'Higgsbb_cand_mass',
-            'name'  : 'Higgsbb_cand_mass_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'Higgsbb_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'HiggsZZ_cand_mass_QCD_C': {
-            'target': 'HiggsZZ_cand_mass',
-            'name'  : 'HiggsZZ_cand_mass_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-        },
-        'leading_Hbb_btag_QCD_C': {
-            'target': 'leading_Hbb_btag',
-            'name'  : 'leading_Hbb_btag_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'trailing_Hbb_btag_QCD_C': {
-            'target': 'trailing_Hbb_btag',
-            'name'  : 'trailing_Hbb_btag_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'leading_jet_qgl_QCD_C': {
-            'target': 'leading_jet_qgl',
-            'name'  : 'leading_jet_qgl_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'trailing_jet_qgl_QCD_C': {
-            'target': 'trailing_jet_qgl',
-            'name'  : 'trailing_jet_qgl_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
-        },
-        'met_pt_QCD_C': {
-            'target': 'met_pt',
-            'name'  : 'met_pt_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
-        },
-  #      'jetHT_QCD_C': {
-  #          'target': 'jetHT',
-  #          'name'  : 'jetHT_QCD_C',  # name to write to histogram
-  #          'region': ['QCD_C'],
-  #          'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
-  #      },
-        'dR_l1l2_QCD_C': {
-            'target': 'dR_l1l2',
-            'name'  : 'dR_l1l2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l1l2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_j1j2_QCD_C': {
-            'target': 'dR_j1j2',
-            'name'  : 'dR_j1j2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_j1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_b1b2_QCD_C': {
-            'target': 'dR_b1b2',
-            'name'  : 'dR_b1b2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_b1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1b1_QCD_C': {
-            'target': 'dR_l1b1',
-            'name'  : 'dR_l1b1_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l1b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1b2_QCD_C': {
-            'target': 'dR_l1b2',
-            'name'  : 'dR_l1b2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2b1_QCD_C': {
-            'target': 'dR_l2b1',
-            'name'  : 'dR_l2b1_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l2b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2b2_QCD_C': {
-            'target': 'dR_l2b2',
-            'name'  : 'dR_l2b2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l2b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1j1_QCD_C': {
-            'target': 'dR_l1j1',
-            'name'  : 'dR_l1j1_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l1j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l1j2_QCD_C': {
-            'target': 'dR_l1j2',
-            'name'  : 'dR_l1j2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2j1_QCD_C': {
-            'target': 'dR_l2j1',
-            'name'  : 'dR_l2j1_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l2j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'dR_l2j2_QCD_C': {
-            'target': 'dR_l2j2',
-            'name'  : 'dR_l2j2_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'dR_l2j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
-        },
-        'cosThetaCS_QCD_C': {
-            'target': 'cosThetaCS',
-            'name'  : 'cosThetaCS_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'cosThetaCS', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetabHbb_QCD_C': {
-            'target': 'cosThetabHbb',
-            'name'  : 'cosThetabHbb_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'cosThetabHbb', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetaZjjHzz_QCD_C': {
-            'target': 'cosThetaZjjHzz',
-            'name'  : 'cosThetaZjjHzz_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'cosThetaZjjHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-        'cosThetaZllHzz_QCD_C': {
-            'target': 'cosThetaZllHzz',
-            'name'  : 'cosThetaZllHzz_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'cosThetaZllHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
-        },
-# For btag Event Weight
-        'ngood_jets': {
-            'target': 'ngood_jets',
-            'name'  : 'ngood_jets',  # name to write to histogram
-            'region': ['signal_btag'],
-            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-        },
-        'ngood_jets_btagSF': {
-            'target': 'ngood_jets',
-            'name'  : 'ngood_jets_btagSF',  # name to write to histogram
-            'region': ['signal_btag'],
-            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-        },
-        'ngood_jets_btagSF_nobtagSF': {
-            'target': 'ngood_jets',
-            'name'  : 'ngood_jets_nobtagSF',  # name to write to histogram
-            'region': ['signal_btag'],
-            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-        },
+#        'Zlep_cand_mass_QCD_C': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+#        },
+#        'Zlep_cand_mass_QCD_D': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_QCD_D',  # name to write to histogram
+#            'region': ['QCD_D'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+#        },
+#        'Zlep_cand_mass_DYcontrol': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_DYcontrol',  # name to write to histogram
+#            'region': ['DYcontrol'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
+#        },
+#        'Zlep_cand_mass_DYcontrol_QCD_C': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_DYcontrol_QCD_C',  # name to write to histogram
+#            'region': ['DYcontrol_QCD_C'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
+#        },
+#        'Zlep_cand_mass_TTcontrol': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_TTcontrol',  # name to write to histogram
+#            'region': ['TTcontrol'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
+#        },
+#        'Zlep_cand_mass_TTcontrol_QCD_C': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass_TTcontrol_QCD_C',  # name to write to histogram
+#            'region': ['TTcontrol_QCD_C'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
+#        },
+#        'Zlep_cand_mass': {
+#            'target': 'Zlep_cand_mass',
+#            'name'  : 'Zlep_cand_mass',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+#        },
+#        'Zlep_cand_pt': {
+#            'target': 'Zlep_cand_pt',
+#            'name'  : 'Zlep_cand_pt',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'Zlep_cand_eta': {
+#            'target': 'Zlep_cand_eta',
+#            'name'  : 'Zlep_cand_eta',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'Zlep_cand_eta', 'n_or_arr': 190, 'lo': -9, 'hi': 9}
+#        },
+#        'leading_lep_pt': {
+#            'target': 'leading_lep_pt',
+#            'name'  : 'leading_lep_pt',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'leading_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
+#        },
+#        'leading_lep_eta': {
+#            'target': 'leading_lep_eta',
+#            'name'  : 'leading_lep_eta',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'leading_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
+#        },
+#        'trailing_lep_pt': {
+#            'target': 'trailing_lep_pt',
+#            'name'  : 'trailing_lep_pt',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'trailing_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
+#        },
+#        'trailing_lep_eta': {
+#            'target': 'trailing_lep_eta',
+#            'name'  : 'trailing_lep_eta',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'trailing_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
+#        },
+#        'Zjet_cand_mass': {
+#            'target': 'Zjet_cand_mass',
+#            'name'  : 'Zjet_cand_mass',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+# #       'HH_cand_mass': {
+# #           'target': 'HH_cand_mass',
+# #           'name'  : 'HH_cand_mass',  # name to write to histogram
+# #           'region': ['signal'],
+# #           'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
+# #       },
+#        'Higgsbb_cand_mass': {
+#            'target': 'Higgsbb_cand_mass',
+#            'name'  : 'Higgsbb_cand_mass',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'Higgsbb_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'HiggsZZ_cand_mass': {
+#            'target': 'HiggsZZ_cand_mass',
+#            'name'  : 'HiggsZZ_cand_mass',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'leading_Hbb_btag': {
+#            'target': 'leading_Hbb_btag',
+#            'name'  : 'leading_Hbb_btag',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'trailing_Hbb_btag': {
+#            'target': 'trailing_Hbb_btag',
+#            'name'  : 'trailing_Hbb_btag',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'leading_jet_qgl': {
+#            'target': 'leading_jet_qgl',
+#            'name'  : 'leading_jet_qgl',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'trailing_jet_qgl': {
+#            'target': 'trailing_jet_qgl',
+#            'name'  : 'trailing_jet_qgl',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'met_pt': {
+#            'target': 'met_pt',
+#            'name'  : 'met_pt',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
+#        },
+# #       'jetHT': {
+# #           'target': 'jetHT',
+# #           'name'  : 'jetHT',  # name to write to histogram
+# #           'region': ['signal'],
+# #           'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
+# #       },
+#        'dR_l1l2': {
+#            'target': 'dR_l1l2',
+#            'name'  : 'dR_l1l2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l1l2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_j1j2': {
+#            'target': 'dR_j1j2',
+#            'name'  : 'dR_j1j2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_j1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_b1b2': {
+#            'target': 'dR_b1b2',
+#            'name'  : 'dR_b1b2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_b1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1b1': {
+#            'target': 'dR_l1b1',
+#            'name'  : 'dR_l1b1',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l1b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1b2': {
+#            'target': 'dR_l1b2',
+#            'name'  : 'dR_l1b2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2b1': {
+#            'target': 'dR_l2b1',
+#            'name'  : 'dR_l2b1',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l2b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2b2': {
+#            'target': 'dR_l2b2',
+#            'name'  : 'dR_l2b2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l2b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1j1': {
+#            'target': 'dR_l1j1',
+#            'name'  : 'dR_l1j1',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l1j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1j2': {
+#            'target': 'dR_l1j2',
+#            'name'  : 'dR_l1j2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2j1': {
+#            'target': 'dR_l2j1',
+#            'name'  : 'dR_l2j1',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l2j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2j2': {
+#            'target': 'dR_l2j2',
+#            'name'  : 'dR_l2j2',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'dR_l2j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'cosThetaCS': {
+#            'target': 'cosThetaCS',
+#            'name'  : 'cosThetaCS',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'cosThetaCS', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetabHbb': {
+#            'target': 'cosThetabHbb',
+#            'name'  : 'cosThetabHbb',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'cosThetabHbb', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetaZjjHzz': {
+#            'target': 'cosThetaZjjHzz',
+#            'name'  : 'cosThetaZjjHzz',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'cosThetaZjjHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetaZllHzz': {
+#            'target': 'cosThetaZllHzz',
+#            'name'  : 'cosThetaZllHzz',  # name to write to histogram
+#            'region': ['signal'],
+#            'axis': {'label': 'cosThetaZllHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+## QCD C Region
+#        'Zlep_cand_pt_QCD_C': {
+#            'target': 'Zlep_cand_pt',
+#            'name'  : 'Zlep_cand_pt_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'Zlep_cand_eta_QCD_C': {
+#            'target': 'Zlep_cand_eta',
+#            'name'  : 'Zlep_cand_eta_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'Zlep_cand_eta', 'n_or_arr': 190, 'lo': -9, 'hi': 9}
+#        },
+#        'leading_lep_pt_QCD_C': {
+#            'target': 'leading_lep_pt',
+#            'name'  : 'leading_lep_pt_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'leading_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
+#        },
+#        'leading_lep_eta_QCD_C': {
+#            'target': 'leading_lep_eta',
+#            'name'  : 'leading_lep_eta_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'leading_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
+#        },
+#        'trailing_lep_pt_QCD_C': {
+#            'target': 'trailing_lep_pt',
+#            'name'  : 'trailing_lep_pt_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'trailing_lep_pt', 'n_or_arr': 50, 'lo': 0, 'hi': 500}
+#        },
+#        'trailing_lep_eta_QCD_C': {
+#            'target': 'trailing_lep_eta',
+#            'name'  : 'trailing_lep_eta_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'trailing_lep_eta', 'n_or_arr': 70, 'lo': -3, 'hi': 3}
+#        },
+#        'Zjet_cand_mass_QCD_C': {
+#            'target': 'Zjet_cand_mass',
+#            'name'  : 'Zjet_cand_mass_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'Zjet_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+##        'HH_cand_mass_QCD_C': {
+##            'target': 'HH_cand_mass',
+##            'name'  : 'HH_cand_mass_QCD_C',  # name to write to histogram
+##            'region': ['QCD_C'],
+##            'axis': {'label': 'HH_cand_mass', 'n_or_arr': 100, 'lo': 0, 'hi': 1000}
+##        },
+#        'Higgsbb_cand_mass_QCD_C': {
+#            'target': 'Higgsbb_cand_mass',
+#            'name'  : 'Higgsbb_cand_mass_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'Higgsbb_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'HiggsZZ_cand_mass_QCD_C': {
+#            'target': 'HiggsZZ_cand_mass',
+#            'name'  : 'HiggsZZ_cand_mass_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'HiggsZZ_cand_mass', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+#        },
+#        'leading_Hbb_btag_QCD_C': {
+#            'target': 'leading_Hbb_btag',
+#            'name'  : 'leading_Hbb_btag_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'leading_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'trailing_Hbb_btag_QCD_C': {
+#            'target': 'trailing_Hbb_btag',
+#            'name'  : 'trailing_Hbb_btag_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'trailing_Hbb_btag', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'leading_jet_qgl_QCD_C': {
+#            'target': 'leading_jet_qgl',
+#            'name'  : 'leading_jet_qgl_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'leading_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'trailing_jet_qgl_QCD_C': {
+#            'target': 'trailing_jet_qgl',
+#            'name'  : 'trailing_jet_qgl_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'trailing_jet_qgl', 'n_or_arr': 20, 'lo': 0, 'hi': 1}
+#        },
+#        'met_pt_QCD_C': {
+#            'target': 'met_pt',
+#            'name'  : 'met_pt_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'met_pt', 'n_or_arr': 60, 'lo': 0, 'hi': 600}
+#        },
+#  #      'jetHT_QCD_C': {
+#  #          'target': 'jetHT',
+#  #          'name'  : 'jetHT_QCD_C',  # name to write to histogram
+#  #          'region': ['QCD_C'],
+#  #          'axis': {'label': 'jetHT', 'n_or_arr': 200, 'lo': 0, 'hi': 2000}
+#  #      },
+#        'dR_l1l2_QCD_C': {
+#            'target': 'dR_l1l2',
+#            'name'  : 'dR_l1l2_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l1l2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_j1j2_QCD_C': {
+#            'target': 'dR_j1j2',
+#            'name'  : 'dR_j1j2_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_j1j2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_b1b2_QCD_C': {
+#            'target': 'dR_b1b2',
+#            'name'  : 'dR_b1b2_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_b1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1b1_QCD_C': {
+#            'target': 'dR_l1b1',
+#            'name'  : 'dR_l1b1_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l1b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1b2_QCD_C': {
+#            'target': 'dR_l1b2',
+#            'name'  : 'dR_l1b2_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l1b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2b1_QCD_C': {
+#            'target': 'dR_l2b1',
+#            'name'  : 'dR_l2b1_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l2b1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l2b2_QCD_C': {
+#            'target': 'dR_l2b2',
+#            'name'  : 'dR_l2b2_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l2b2', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'dR_l1j1_QCD_C': {
+#            'target': 'dR_l1j1',
+#            'name'  : 'dR_l1j1_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'dR_l1j1', 'n_or_arr': 70, 'lo': 0, 'hi': 7}
+#        },
+#        'cosThetaCS_QCD_C': {
+#            'target': 'cosThetaCS',
+#            'name'  : 'cosThetaCS_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'cosThetaCS', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetabHbb_QCD_C': {
+#            'target': 'cosThetabHbb',
+#            'name'  : 'cosThetabHbb_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'cosThetabHbb', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetaZjjHzz_QCD_C': {
+#            'target': 'cosThetaZjjHzz',
+#            'name'  : 'cosThetaZjjHzz_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'cosThetaZjjHzz', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+#        'cosThetaZllHzz_QCD_C': {
+#            'target': 'cosThetaZllHzz',
+#            'name'  : 'cosThetaZllHzz_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'cosThetaCS', 'n_or_arr': 20, 'lo': -1, 'hi': 1}
+#        },
+## For btag Event Weight
+#        'ngood_jets': {
+#            'target': 'ngood_jets',
+#            'name'  : 'ngood_jets',  # name to write to histogram
+#            'region': ['signal_btag'],
+#            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+#        },
+#        'ngood_jets_btagSF': {
+#            'target': 'ngood_jets',
+#            'name'  : 'ngood_jets_btagSF',  # name to write to histogram
+#            'region': ['signal_btag'],
+#            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+#        },
+#        'ngood_jets_btagSF_nobtagSF': {
+#            'target': 'ngood_jets',
+#            'name'  : 'ngood_jets_nobtagSF',  # name to write to histogram
+#            'region': ['signal_btag'],
+#            'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+#        },
 # BDT score
         'h_bdtscore' : {
             'target': 'BDTscore',
@@ -560,12 +541,12 @@ class HH_NTuple(WSProducer):
             'region': ['signal'],
             'axis': {'label': 'BDTscore', 'n_or_arr': 100, 'lo': 0., 'hi': 1.}
         },
-        'h_bdtscore_QCD_C': {
-            'target': 'BDTscore',
-            'name'  : 'BDTscore_QCD_C',  # name to write to histogram
-            'region': ['QCD_C'],
-            'axis': {'label': 'BDTscore', 'n_or_arr': 100, 'lo': 0., 'hi': 1.}
-        },
+#        'h_bdtscore_QCD_C': {
+#            'target': 'BDTscore',
+#            'name'  : 'BDTscore_QCD_C',  # name to write to histogram
+#            'region': ['QCD_C'],
+#            'axis': {'label': 'BDTscore', 'n_or_arr': 100, 'lo': 0., 'hi': 1.}
+#        },
     }
     selection = {
             "signal" : [
@@ -777,38 +758,40 @@ class HH_NTuple(WSProducer):
 
     def btag_weighting(self, event: LazyDataFrame, weight):
         if self.isMC:
-            if 'cferr1' in self.syst_suffix:
-                if "up" in self.syst_suffix:
-                    weight = weight * event.w_btag_SF_sys_up_cferr1
-                else:
-                    weight = weight * event.w_btag_SF_sys_down_cferr1
+            syst_names = ["w_btag_SF_sys_up_hf", "w_btag_SF_sys_up_lf", "w_btag_SF_sys_up_cferr1", "w_btag_SF_sys_up_cferr2",
+                        "w_btag_SF_sys_down_hf", "w_btag_SF_sys_down_lf", "w_btag_SF_sys_down_cferr1", "w_btag_SF_sys_down_cferr2",
+                        "w_btag_SF_sys_up_hfstats1", "w_btag_SF_sys_up_hfstats2", "w_btag_SF_sys_up_lfstats1", "w_btag_SF_sys_up_lfstats2",
+                        "w_btag_SF_sys_down_hfstats1", "w_btag_SF_sys_down_hfstats2", "w_btag_SF_sys_down_lfstats1", "w_btag_SF_sys_down_lfstats2"
+                        ]
+            if self.syst_suffix in syst_names:
+                weight = weight * getattr(event, self.syst_suffix)
             else:
                 weight = weight * event.w_btag_SF
 
-            if 'cferr2' in self.syst_suffix:
-                if "up" in self.syst_suffix:
-                    weight = weight * event.w_btag_SF_sys_up_cferr2
-                else:
-                    weight = weight * event.w_btag_SF_sys_down_cferr2
-            else:
-                weight = weight * event.w_btag_SF
-
-            if 'hf' in self.syst_suffix:
-                if "up" in self.syst_suffix:
-                    weight = weight * event.w_btag_SF_sys_up_hf
-                else:
-                    weight = weight * event.w_btag_SF_sys_down_hf
-            else:
-                weight = weight * event.w_btag_SF
-
-            if 'lf' in self.syst_suffix:
-                if "up" in self.syst_suffix:
-                    weight = weight * event.w_btag_SF_sys_up_lf
-                else:
-                    weight = weight * event.w_btag_SF_sys_down_lf
-            else:
-                weight = weight * event.w_btag_SF
-
+#            if 'cferr1' in self.syst_suffix:
+#                if "up" in self.syst_suffix:
+#                    weight = weight * event.w_btag_SF_sys_up_cferr1
+#                else:
+#                    weight = weight * event.w_btag_SF_sys_down_cferr1
+#
+#            elif 'cferr2' in self.syst_suffix:
+#                if "up" in self.syst_suffix:
+#                    weight = weight * event.w_btag_SF_sys_up_cferr2
+#                else:
+#                    weight = weight * event.w_btag_SF_sys_down_cferr2
+#
+#            elif 'hf' in self.syst_suffix:
+#                if "up" in self.syst_suffix:
+#                else:
+#                    weight = weight * event.w_btag_SF_sys_down_hf
+#
+#            elif 'lf' in self.syst_suffix:
+#                if "up" in self.syst_suffix:
+#                    weight = weight * event.w_btag_SF_sys_up_lf
+#
+#            else:
+#                weight = weight * event.w_btag_SF
+#
         return weight
 
     def my_btag_weighting(self, event: LazyDataFrame, weight, njet_weights):
