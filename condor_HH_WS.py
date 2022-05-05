@@ -60,18 +60,22 @@ if float(options.nevt) > 0:
     pre_selection += ' && (Entry$ < {})'.format(options.nevt)
 
 pro_syst = ["ElectronEn", "MuonEn", "jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]
-if options.era == '2016': pro_syst.extend(["jesAbsolute_2016","jesBBEC1_2016","jesHF_2016","jesRelativeSample_2016"])
-if options.era == '2017': pro_syst.extend(["jesAbsolute_2017","jesBBEC1_2017","jesHF_2017","jesRelativeSample_2017"])
-if options.era == '2018': pro_syst.extend(["jesAbsolute_2018","jesBBEC1_2018","jesHF_2018","jesRelativeSample_2018"])
+if options.era == '2016': pro_syst.extend(["jesAbsolute_2016","jesBBEC1_2016","jesEC2_2016","jesHF_2016","jesRelativeSample_2016"])
+if options.era == '2017': pro_syst.extend(["jesAbsolute_2017","jesBBEC1_2017","jesEC2_2017","jesHF_2017","jesRelativeSample_2017"])
+if options.era == '2018': pro_syst.extend(["jesAbsolute_2018","jesBBEC1_2018","jesEC2_2018","jesHF_2018","jesRelativeSample_2018"])
 
 ext_syst = ["puWeight", "PDF", "MuonSF", "ElectronSF", "TriggerSFWeight", "QCDScale0w", "QCDScale1w", "QCDScale2w"]
 
-# extension to ext_syst
+# additional ext_syst with different up and down naming convention
 btag_syst = ["w_btag_SF_sys_up_hf", "w_btag_SF_sys_up_lf", "w_btag_SF_sys_up_cferr1", "w_btag_SF_sys_up_cferr2",
              "w_btag_SF_sys_down_hf", "w_btag_SF_sys_down_lf", "w_btag_SF_sys_down_cferr1", "w_btag_SF_sys_down_cferr2",
              "w_btag_SF_sys_up_hfstats1", "w_btag_SF_sys_up_hfstats2", "w_btag_SF_sys_up_lfstats1", "w_btag_SF_sys_up_lfstats2",
              "w_btag_SF_sys_down_hfstats1", "w_btag_SF_sys_down_hfstats2", "w_btag_SF_sys_down_lfstats1", "w_btag_SF_sys_down_lfstats2"
              ]
+
+tt_syst = ["ttbarweight_up", "ttbarweight_down"]
+
+ext_syst_more = btag_syst + tt_syst
 
 modules_era = []
 
@@ -97,7 +101,7 @@ if options.isMC and options.doSyst==1:
                )
            )
 
-   for sys in btag_syst:
+   for sys in ext_syst_more:
        modules_era.append(
            HH_NTuple(
                options.isMC, str(options.era),

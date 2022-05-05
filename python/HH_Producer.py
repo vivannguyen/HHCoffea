@@ -689,6 +689,21 @@ class HH_NTuple(WSProducer):
                 except:
                     pass
 
+            # Top Pt weights
+            if "ttbarweight" in self.syst_suffix:
+                try:
+                    if "up" in self.syst_suffix:
+                        weight *= event.ttbarweight_up
+                    elif "down" in self.syst_suffix:
+                        weight *= event.ttbarweight_down
+                except:
+                    pass
+            else:
+                try:
+                    weight *= event.ttbarweight_nominal
+                except:
+                    pass
+
             # QCD Scale weights
             if "QCDScale0" in self.syst_suffix:
                 try:
@@ -768,30 +783,6 @@ class HH_NTuple(WSProducer):
             else:
                 weight = weight * event.w_btag_SF
 
-#            if 'cferr1' in self.syst_suffix:
-#                if "up" in self.syst_suffix:
-#                    weight = weight * event.w_btag_SF_sys_up_cferr1
-#                else:
-#                    weight = weight * event.w_btag_SF_sys_down_cferr1
-#
-#            elif 'cferr2' in self.syst_suffix:
-#                if "up" in self.syst_suffix:
-#                    weight = weight * event.w_btag_SF_sys_up_cferr2
-#                else:
-#                    weight = weight * event.w_btag_SF_sys_down_cferr2
-#
-#            elif 'hf' in self.syst_suffix:
-#                if "up" in self.syst_suffix:
-#                else:
-#                    weight = weight * event.w_btag_SF_sys_down_hf
-#
-#            elif 'lf' in self.syst_suffix:
-#                if "up" in self.syst_suffix:
-#                    weight = weight * event.w_btag_SF_sys_up_lf
-#
-#            else:
-#                weight = weight * event.w_btag_SF
-#
         return weight
 
     def my_btag_weighting(self, event: LazyDataFrame, weight, njet_weights):
