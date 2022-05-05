@@ -201,7 +201,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
+        for category in ['QCD', 'Radion', 'Graviton']:
+        #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
     df_dict = {}
@@ -245,48 +246,52 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['sample_name'].append(name)
 
         if print_yields:
-            if name == 'event_yield_A':
+            if name == 'BDTscore':
                 if year == '2016':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
-                         'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
-                         'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-                         'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
-                    ]
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         #'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+                         #'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
+                         #'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+                         #'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
+                        ]
                 if year == '2017':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
-                    ]
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         #'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
+                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
+                        ]
                 if year == '2018':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
-                         'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
-                         'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8']
+                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         #'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
+                         #'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
+                         #'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'
+                        ]
                 for idx, y in enumerate(y):
-                    print(f'Yield {y}: {event_yields[y]*normalizations[y]}')
+                    print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
 
     logging.info('Finished getting bins and event yields.')
     return pd.DataFrame(df_dict)
@@ -515,12 +520,31 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     event_yields['DY'] *= bkgd_norm[1]
     event_yields['TT'] *= bkgd_norm[2]
 
+    # For comparing to data cards
+    if event_yields['sample_name']=="BDTscore":
+        print('DY yield: ', event_yields['DY'].sum())
+        print('TT yield: ', event_yields['TT'].sum())
+        print('SingleTop yield: ', event_yields['SingleTop'].sum())
+        print('SMHiggs yield: ', event_yields['SMHiggs'].sum())
+        print('WJets yield: ', event_yields['Wjets'].sum())
+        print('VV yield: ', event_yields['VV'].sum())
+        print('ttV yield: ', event_yields['ttV'].sum())
+        print('QCD yield: ', event_yields['QCD_estimate'].sum())
+        print('Other yield: ', event_yields['Other'].sum())
+        print('Data yield: ', event_yields['Data'].sum())
+
     mc_categories = ['DY', 'TT', 'SMHiggs', 'QCD_estimate']
     MC = event_yields[mc_categories].sum()
     Data = event_yields['Data']
     Other = event_yields['Other']
     name = event_yields['sample_name']
     bins = event_yields['bins']
+
+    if event_yields['sample_name']=="BDTscore":
+        bins = bins[:-25]
+        MC = MC[:-25]
+        Data = Data[:-25]
+        Other = Other[:-25]
 
     MC += Other
 
@@ -532,11 +556,18 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     upper.errorbar(binc, Data, xerr = None, yerr = np.sqrt(Data), fmt = 'o',
                    zorder=10, color='black', label='Data', markersize=3)
-    all_weights = np.vstack([event_yields['SMHiggs'],
-                             event_yields['Other'],
-                             event_yields['QCD_estimate'],
-                             event_yields['DY'],
-                             event_yields['TT']]).transpose()
+    if event_yields['sample_name']=="BDTscore":
+        all_weights = np.vstack([event_yields['SMHiggs'][:-25],
+                                 event_yields['Other'][:-25],
+                                 event_yields['QCD_estimate'][:-25],
+                                 event_yields['DY'][:-25],
+                                 event_yields['TT'][:-25]]).transpose()
+    else:
+        all_weights = np.vstack([event_yields['SMHiggs'],
+                                 event_yields['Other'],
+                                 event_yields['QCD_estimate'],
+                                 event_yields['DY'],
+                                 event_yields['TT']]).transpose()
     all_x = np.vstack([binc] * all_weights.shape[1]).transpose()
 
     COLORMAP = {'SMhiggs': COLORS[0],
@@ -553,8 +584,11 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                histtype='stepfilled', edgecolor='black', zorder=1,
                stacked=True, color=plotting_colors, label=labels)
 
-    upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+    if event_yields['sample_name']=="BDTscore":
+        upper.fill_between(binup, MC - np.sqrt(event_yields['var'][:-25]), MC + np.sqrt(event_yields['var'][:-25]), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
 
+    else:
+        upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
     upper.set_yscale("log")
     upper.set_ylim([0.01, 1000000])
 
@@ -702,7 +736,15 @@ def main():
             btag_path = os.path.join(os.getcwd(), Path(args.btag_filename).stem + '.jsonl')
             btag_ratio(df, args.year, btag_path, args.btag_overwrite)
     else:
-        bkgd_norm = estimate_background(df)
+        #bkgd_norm = estimate_background(df)
+        if args.channel == 'muon':
+            if args.year == '2016': bkgd_norm = (1.46, 1.33, 0.974)
+            if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.22)
+            if args.year == '2018': bkgd_norm = (1.53, 1.65, 1.12)
+        if args.channel == 'electron':
+            if args.year == '2016': bkgd_norm = (1.01, 1.42, 1.01)
+            if args.year == '2017': bkgd_norm = (1.25, 1.74, 1.14)
+            if args.year == '2018': bkgd_norm = (1.08, 1.59, 1.04)
         df = scale_cregions(df, *bkgd_norm)
 
     logging.info('Making plots.')
@@ -718,6 +760,18 @@ def main():
             new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
+
+    fname = f'QCD_estimate_{args.year}.root'
+    f = uproot.recreate(fname, compression=uproot.ZLIB(4))
+    for rowidx in range(df.shape[0]):
+        qcd_estimate = df.iloc[rowidx]['QCD_estimate']
+        name = df.iloc[rowidx]['sample_name']
+        bins = df.iloc[rowidx]['bins']
+        binc = bins[:-1] + np.diff(bins) * 0.5
+        f[f'{name}'] = np.histogram(binc, bins=bins, weights=qcd_estimate)
+    f.close()
+
+    logging.info(f'QCD estimate histograms saved to root file {fname}.')
 
 if __name__ == '__main__':
 	main()

@@ -91,7 +91,7 @@ for i in modules_era:
 
 print("Selection : ", pre_selection)
 tstart = time.time()
-f = uproot.recreate("tree_%s_WS.root" % str(options.jobNum))
+f = uproot.recreate("tree_%s_WS.root" % str(options.era))
 for instance in modules_era:
     output = run_uproot_job(
         {instance.sample: [options.infile]},
