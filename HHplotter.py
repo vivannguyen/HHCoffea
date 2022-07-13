@@ -29,7 +29,12 @@ except:
     import uproot_methods
 logging.getLogger().setLevel(logging.INFO)
 
-COLORS=list(sns.color_palette('Set2').as_hex())
+#COLORS=list(sns.color_palette('Set2').as_hex())
+COLORS=('#E33719','#2FDBCA','#F59D2D','#A9F274','#5CA4F5','#FF47EB')
+#COLORS=('#E63719','#2FDBCA','#F59D2D','#ABF575','#5CA4F5','#FF47EB')
+#COLORS=('#B82721','#98D17C','#E06E2D','#4954B0','#56A3CD','#FF47EB')
+#COLORS=('#B82721','#7CAD51','#EDDCDA','#4954B0','#56A3CD','#FF47EB')
+#COLORS=('#FF4E48','#F58A55','#FFEDEB','#436BE6','#52DBA9','#FF47EB')
 #plt.style.use('physics.mplstyle')
 
 LUMI = {'2016':36, '2017':41.5, '2018': 59.8}
@@ -134,6 +139,10 @@ def get_normalizations(sample_paths, xsections, histogram_names, year):
                 _scale = 1
             else:
                 _scale  = xs_scale(xsections, year, ufile=_file, proc=_proc)
+#            if 'GluGluToHHTo2B2ZTo2L2J_node_cHHH1' in fn:
+#                print("hello", _scale)
+#                _scale = _scale * .031047 *0.004
+#                print("goodbye", _scale)
             for idx, name in enumerate(histogram_names):
                 if name == Path(fn).stem:
                     norm_dict[name] = _scale
@@ -201,7 +210,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'Radion', 'Graviton']:
+        for category in ['QCD', 'Radion', 'Graviton', 'NonRes']:
         #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
@@ -249,7 +258,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
             if name == 'BDTscore':
                 if year == '2016':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
-                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
@@ -262,7 +271,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                         ]
                 if year == '2017':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
+                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
@@ -277,7 +286,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                         ]
                 if year == '2018':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
@@ -404,8 +413,15 @@ def estimate_background(all_event_yields, tol=1e-16, maxiter=100, disp=False):
     dy_c, tt_c, dy, tt, qcd_b, qcd_d = *[df_subset.iloc[idx] for idx in range(df_subset.shape[0])],
 
 
-    residual_func = lambda x, y, z, a, b: (x['Data']
-                                        - (x['DY'] * y + a + x['TT'] * z + b + x['SMHiggs'] + x['Other']))
+    #residual_func = lambda x, y, z, a, b: (x['Data']
+    #                                    - (x['DY'] * y + a + x['TT'] * z + b + x['SMHiggs'] + x['Other']))
+
+    residual_func = lambda x, y, z, a, b: ((x['Data'] 
+                                         - (x['DY'] * y + a + x['TT'] * z + b + x['SMHiggs'] + x['Other'])) >0)*((x['Data'] 
+                                         - (x['DY'] * y + a + x['TT'] * z + b + x['SMHiggs'] + x['Other'])))
+
+    #residual_func_all = lambda x, y, z, a, b: (x['Data'] 
+    #                                    - (x['DY'] * y + a + x['TT'] * z + b + x['SMHiggs'] + x['Other']))
 
     def optimizer(dDY, dTT, dDY_qcd_b, dTT_qcd_b, dDY_qcd_d, dTT_qcd_d):
         counter = 0
@@ -459,7 +475,7 @@ def estimate_background(all_event_yields, tol=1e-16, maxiter=100, disp=False):
     errDY_qcd_d = np.sqrt(qcd_d['var_DY'])
     errTT_qcd_d = np.sqrt(qcd_d['var_TT'])
 
-    for _ in range (0, 1000): 
+    for _ in range (0, 1000):
         randDY = np.random.normal(0, 1, size=dy['Data'].shape)
         randTT = np.random.normal(0, 1, size=tt['Data'].shape)
         randDY_qcd_b = np.random.normal(0, 1, size=qcd_b['Data'].shape)
@@ -495,6 +511,7 @@ def scale_cregions (df, qcd_norm, dy_norm, tt_norm):
     df = df.copy()
     c_samples_bool = df['sample_name'].str.contains('QCD_C')
     c_samples_to_drop = df[c_samples_bool & ~df['sample_name'].str.contains('Zlep_cand_mass_QCD_C')]['sample_name']
+    c_samples_to_drop = df[c_samples_bool & ~df['sample_name'].str.contains('Zjet_cand_mass_QCD_C')]['sample_name']
     c_samples = df[c_samples_bool]['sample_name']
     df_subset = df[c_samples_bool].set_index('sample_name')
     residuals = (data_mc_residual(df_subset, dy_norm, tt_norm)) * qcd_norm
@@ -504,15 +521,16 @@ def scale_cregions (df, qcd_norm, dy_norm, tt_norm):
     df = df.drop(c_samples_to_drop).reset_index()
     return df
 
-def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields=False):
+def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields=False, datacard=False, bdtscores_to_csv=False):
     fig, axarr = plt.subplots(2, dpi=150, figsize=(6, 5), sharex=True,
                               gridspec_kw={'hspace': 0.05, 'height_ratios': (0.8,0.2)},
                               constrained_layout=False)
+
     upper = axarr[0]
     lower = axarr[1]
 
     if print_yields:
-        if event_yields['sample_name']=="event_yield_A": 
+        if event_yields['sample_name']=="event_yield_A":
             print('DY yield: ', event_yields['DY'])
             print('TT yield: ', event_yields['TT'])
 
@@ -532,6 +550,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         print('QCD yield: ', event_yields['QCD_estimate'].sum())
         print('Other yield: ', event_yields['Other'].sum())
         print('Data yield: ', event_yields['Data'].sum())
+#        print('Signal yield: ', event_yields['NonResHHH1'].sum()*0.031047*0.004)
 
     mc_categories = ['DY', 'TT', 'SMHiggs', 'QCD_estimate']
     MC = event_yields[mc_categories].sum()
@@ -540,11 +559,12 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     name = event_yields['sample_name']
     bins = event_yields['bins']
 
+ #   Signal = event_yields['NonResHHH1'] * 0.031047 * 0.004
+
     if event_yields['sample_name']=="BDTscore":
-        bins = bins[:-25]
-        MC = MC[:-25]
-        Data = Data[:-25]
-        Other = Other[:-25]
+        if not datacard:
+            # slice depends on how many total bins in the BDT score distribution
+            Data[21:] = 0
 
     MC += Other
 
@@ -556,25 +576,24 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     upper.errorbar(binc, Data, xerr = None, yerr = np.sqrt(Data), fmt = 'o',
                    zorder=10, color='black', label='Data', markersize=3)
+
     if event_yields['sample_name']=="BDTscore":
-        all_weights = np.vstack([event_yields['SMHiggs'][:-25],
-                                 event_yields['Other'][:-25],
-                                 event_yields['QCD_estimate'][:-25],
-                                 event_yields['DY'][:-25],
-                                 event_yields['TT'][:-25]]).transpose()
-    else:
-        all_weights = np.vstack([event_yields['SMHiggs'],
-                                 event_yields['Other'],
-                                 event_yields['QCD_estimate'],
-                                 event_yields['DY'],
-                                 event_yields['TT']]).transpose()
+        if bdtscores_to_csv:
+            asdf = np.column_stack((binc,Data,MC))
+            np.savetxt(f'BDTscores_{year}{channel}.csv', asdf, delimiter=',', fmt='%f')
+
+    all_weights = np.vstack([event_yields['SMHiggs'],
+                             event_yields['Other'],
+                             event_yields['QCD_estimate'],
+                             event_yields['DY'],
+                             event_yields['TT']]).transpose()
     all_x = np.vstack([binc] * all_weights.shape[1]).transpose()
 
-    COLORMAP = {'SMhiggs': COLORS[0],
-                'Other': COLORS[1],
-                'DY': COLORS[2],
-                'TT': COLORS[3],
-                'QCD': COLORS[4],
+    COLORMAP = {'SMhiggs': COLORS[4],
+                'Other': COLORS[3],
+                'DY': COLORS[1],
+                'TT': COLORS[0],
+                'QCD': COLORS[2],
                 'QCD_estimate':COLORS[5]}
 
     labels = ['SMhiggs', 'Other', 'QCD', 'DY', 'TT']
@@ -584,11 +603,24 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                histtype='stepfilled', edgecolor='black', zorder=1,
                stacked=True, color=plotting_colors, label=labels)
 
-    if event_yields['sample_name']=="BDTscore":
-        upper.fill_between(binup, MC - np.sqrt(event_yields['var'][:-25]), MC + np.sqrt(event_yields['var'][:-25]), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+#    sig_weight = Signal.transpose()
+#    sig_x = ([binc] * sig_weight.shape[1]).transpose()
 
-    else:
-        upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+#    upper.hist(x=sig_x, bins=bins, weights=sig_weight,
+#               histtype='step', zorder=1)
+
+#    upper.stairs(
+#        edges= bins,
+#        values= Signal,
+#        # hatch="///",
+#        label="HH(llbbqq)",
+#        facecolor="red",
+#        linewidth=1,
+#        color="red",
+#    )
+
+    upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+
     upper.set_yscale("log")
     upper.set_ylim([0.01, 1000000])
 
@@ -617,12 +649,13 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     chi2 = 0
     nBins = 0
     ratio_check = np.isfinite(ratio)
+
     for indx, r in enumerate(ratio):
         if ratio_check[indx] and yerr[indx] > 0:
             chi2 = chi2 + ((r-1)*(r-1))/(yerr[indx]*yerr[indx])
             nBins = nBins + 1
 
- 
+
     lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
@@ -657,7 +690,6 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         lower_label*0.95, max_y*0.25, text_channel,
         fontsize=14,
     )
-
 
     upper.text(
         lower_label*0.95,max_y*0.1,r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
@@ -702,6 +734,12 @@ def main():
                         help='Overwrite btag weights file.')
     parser.add_argument('--yields', action='store_true', required=False,
                         help='Print yields for select samples.')
+    parser.add_argument('--finalselection', action='store_true', required=False,
+                        help='Apply background norms at preselection.')
+    parser.add_argument('--bdtscores', action='store_true', required=False,
+                        help='Store BDT scores to csv file for binning optimization.')
+    parser.add_argument('--datacard', action='store_true', required=False,
+                        help='Plot full BDT score discribution, save QCD C region to root file.')
     args = parser.parse_args()
 
 
@@ -736,15 +774,45 @@ def main():
             btag_path = os.path.join(os.getcwd(), Path(args.btag_filename).stem + '.jsonl')
             btag_ratio(df, args.year, btag_path, args.btag_overwrite)
     else:
-        #bkgd_norm = estimate_background(df)
-        if args.channel == 'muon':
-            if args.year == '2016': bkgd_norm = (1.46, 1.33, 0.974)
-            if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.22)
-            if args.year == '2018': bkgd_norm = (1.53, 1.65, 1.12)
-        if args.channel == 'electron':
-            if args.year == '2016': bkgd_norm = (1.01, 1.42, 1.01)
-            if args.year == '2017': bkgd_norm = (1.25, 1.74, 1.14)
-            if args.year == '2018': bkgd_norm = (1.08, 1.59, 1.04)
+        if args.finalselection:
+            #for tt bar reweight and QCD positive bins only
+            if args.channel == 'muon':
+                if args.year == '2016': bkgd_norm = (1.44, 1.34, 0.989)
+                if args.year == '2017': bkgd_norm = (1.50, 1.88, 1.26)
+                if args.year == '2018': bkgd_norm = (1.51, 1.68, 1.41)
+            if args.channel == 'electron':
+                if args.year == '2016': bkgd_norm = (0.997, 1.43, 1.01)
+                if args.year == '2017': bkgd_norm = (1.35, 1.81, 1.17)
+                if args.year == '2018': bkgd_norm = (1.10, 1.63, 1.12)
+            #if args.channel == 'muon':
+            #    if args.year == '2016': bkgd_norm = (1.47, 1.32, 1.00)
+            #    if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.21)
+            #    if args.year == '2018': bkgd_norm = (1.53, 1.64, 1.38)
+            #if args.channel == 'electron':
+            #    if args.year == '2016': bkgd_norm = (0.996, 1.41, 1.03)
+            #    if args.year == '2017': bkgd_norm = (1.29, 1.74, 1.11)
+            #    if args.year == '2018': bkgd_norm = (1.08, 1.58, 1.09)
+            #for tt bar reweight
+            #if args.channel == 'muon':
+            #    if args.year == '2016': bkgd_norm = (1.47, 1.32, 1.01)
+            #    if args.year == '2017': bkgd_norm = (1.52, 1.8, 1.24)
+            #    if args.year == '2018': bkgd_norm = (1.53, 1.64, 1.41)
+            #if args.channel == 'electron':
+            #    if args.year == '2016': bkgd_norm = (0.97, 1.41, 1.05)
+            #    if args.year == '2017': bkgd_norm = (1.26, 1.74, 1.15)
+            #    if args.year == '2018': bkgd_norm = (1.08, 1.58, 1.09)
+            #before ttbar reweight
+            #if args.channel == 'muon':
+            #    if args.year == '2016': bkgd_norm = (1.46, 1.33, 0.974)
+            #    if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.22)
+            #    if args.year == '2018': bkgd_norm = (1.53, 1.65, 1.12)
+            #if args.channel == 'electron':
+            #    if args.year == '2016': bkgd_norm = (1.01, 1.42, 1.01)
+            #    if args.year == '2017': bkgd_norm = (1.25, 1.74, 1.14)
+            #    if args.year == '2018': bkgd_norm = (1.08, 1.59, 1.04)
+        else:
+            bkgd_norm = estimate_background(df)
+
         df = scale_cregions(df, *bkgd_norm)
 
     logging.info('Making plots.')
@@ -753,25 +821,26 @@ def main():
         num_cpus = os.cpu_count()
         batch_size = 1 #len(all_bins) // num_cpus + 1
         (Parallel(n_jobs=num_cpus, batch_size=batch_size)
-         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
+         (delayed(new_plotting)(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields, datacard=args.datacard, bdtscores_to_csv=args.bdtscores)
          for rowidx in range(df.shape[0])))
     else:
         for rowidx in range(df.shape[0]):
-            new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields)
+            new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields, datacard=args.datacard, bdtscores_to_csv=args.bdtscores)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
 
-    fname = f'QCD_estimate_{args.year}.root'
-    f = uproot.recreate(fname, compression=uproot.ZLIB(4))
-    for rowidx in range(df.shape[0]):
-        qcd_estimate = df.iloc[rowidx]['QCD_estimate']
-        name = df.iloc[rowidx]['sample_name']
-        bins = df.iloc[rowidx]['bins']
-        binc = bins[:-1] + np.diff(bins) * 0.5
-        f[f'{name}'] = np.histogram(binc, bins=bins, weights=qcd_estimate)
-    f.close()
+    if args.datacard:
+        fname = f'QCD_estimate_{args.year}.root'
+        f = uproot.recreate(fname, compression=uproot.ZLIB(4))
+        for rowidx in range(df.shape[0]):
+            qcd_estimate = df.iloc[rowidx]['QCD_estimate']
+            name = df.iloc[rowidx]['sample_name']
+            bins = df.iloc[rowidx]['bins']
+            binc = bins[:-1] + np.diff(bins) * 0.5
+            f[f'{name}'] = np.histogram(binc, bins=bins, weights=qcd_estimate)
+        f.close()
 
-    logging.info(f'QCD estimate histograms saved to root file {fname}.')
+        logging.info(f'QCD estimate histograms saved to root file {fname}.')
 
 if __name__ == '__main__':
 	main()

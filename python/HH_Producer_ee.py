@@ -76,8 +76,16 @@ class WSProducer(ProcessorABC):
         weight = self.weighting(df)
         nobtag_weight = weight
         btag_weight = self.btag_weighting(df, weight)
+
+        if self.era == 2016: ttbar_ratio = 1.0106533
+        if self.era == 2017: ttbar_ratio = 1.0118529
+        if self.era == 2018: ttbar_ratio = 1.0119133
+
         if self.njet_weights is not None:
             weight = self.my_btag_weighting(df, btag_weight, self.njet_weights)
+            weight = self.tt_weighting(df,weight)
+            weight = self.my_tt_weighting(df, weight, ttbar_ratio)
+
         for h, hist in list(self.histograms.items()):
             for region in hist['region']:
                 name = self.naming_schema(hist['name'], region)
@@ -568,7 +576,7 @@ class HH_NTuple(WSProducer):
     }
     selection = {
             "signal" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 25",
@@ -591,7 +599,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_B" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 2",
                 "event.leading_lep_pt  > 25",
@@ -603,7 +611,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_C" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 25",
@@ -615,7 +623,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "QCD_D" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 4",
                 "event.leading_lep_pt  > 25",
@@ -627,7 +635,7 @@ class HH_NTuple(WSProducer):
                 "event.trailing_jet_pt > 20"
             ],
             "DYcontrol" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 25",
@@ -640,7 +648,7 @@ class HH_NTuple(WSProducer):
                 "event.Zlep_cand_mass < 100",
             ],
             "DYcontrol_QCD_C" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 25",
@@ -653,7 +661,7 @@ class HH_NTuple(WSProducer):
                 "event.Zlep_cand_mass < 100",
             ],
             "TTcontrol" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 1",
                 "event.leading_lep_pt  > 25",
@@ -666,7 +674,7 @@ class HH_NTuple(WSProducer):
                 "event.met_pt > 100"
             ],
             "TTcontrol_QCD_C" : [
-                "event.ngood_bjetsM     >  0",
+                "event.ngood_bjets     >  0",
                 "event.lep_category    == 2",
                 "event.event_category    == 3",
                 "event.leading_lep_pt  > 25",
@@ -754,10 +762,28 @@ class HH_NTuple(WSProducer):
 
         return weight
 
+    def tt_weighting(self, event: LazyDataFrame, weight):
+        if self.isMC:
+            try:
+                weight = weight * event.ttbarweight_nominal
+            except:
+                pass
+
+        return weight
+
     def my_btag_weighting(self, event: LazyDataFrame, weight, njet_weights):
         if self.isMC:
             weight = weight * njet_weights[event.ngood_jets]
         return weight
+
+    def my_tt_weighting(self, event: LazyDataFrame, weight, ttbar_ratio):
+        if self.isMC:
+            try:
+                weight = weight * event.ttbarweight_nominal * ttbar_ratio
+            except:
+                pass
+
+        return (weight)
 
     def naming_schema(self, name, region):
      return f'{name}{self.syst_suffix}'
