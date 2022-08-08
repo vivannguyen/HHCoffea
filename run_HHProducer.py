@@ -12,11 +12,11 @@ logging.basicConfig(level=logging.DEBUG)
 script_TEMPLATE = """#!/bin/bash
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-#source /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest
+source /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest
 export SCRAM_ARCH=slc6_amd64_gcc630
 
 cd {cmssw_base}/src/
-eval `scramv1 runtime -sh`
+#eval `scramv1 runtime -sh`
 echo
 echo $_CONDOR_SCRATCH_DIR
 cd   $_CONDOR_SCRATCH_DIR
@@ -29,12 +29,16 @@ echo "+ CMSSW_BASE  = $CMSSW_BASE"
 echo "+ PYTHON_PATH = $PYTHON_PATH"
 echo "+ PWD         = $PWD"
 cp $2 temp_$1.root
-python condor_HH_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=temp_$1.root
-rm temp_$1.root
+python condor_HH_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=$2
+
 echo "----- transfer output to eos :"
-mv tree_$1.root {outputdir}
+
+xrdcp -s -f tree_{era}_WS.root {eosoutdir}
+
 echo "----- directory after running :"
+
 ls -lR .
+
 echo " ------ THE END (everyone dies !) ----- "
 """
 
@@ -68,17 +72,15 @@ def main():
     options = parser.parse_args()
 
     cmssw_base = os.environ['CMSSW_BASE']
-    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/test/emilyinparis/{}/".format(options.tag)
+    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/{}/{}/".format(options.tag, options.era)
+    eosbase = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/vivan/{tag}/{year}/{sample}/"
 
-    pattern = "WZ"
     for sample in os.listdir(indir):
         if "merged" in sample:
             continue
         if "WS" in sample:
             continue
-        #if pattern not in sample:
-        #    continue
-
+        sample = sample.replace('.root', '')
         jobs_dir = '_'.join(['jobs', options.tag, sample])
         logging.info("-- sample_name : " + sample)
 
@@ -93,21 +95,26 @@ def main():
                 os.mkdir(jobs_dir)
         else:
             os.mkdir(jobs_dir)
-        with open(os.path.join(jobs_dir, "inputfiles.dat"), 'w') as infiles:
-            in_files = glob.glob("{indir}/{sample}/*.root".format(sample=sample, indir=indir))
-            for name in in_files:
-                infiles.write(name+"\n")
+
+        with open(os.path.join(jobs_dir, 'inputfiles.dat'), 'w') as infiles:
+            infiles.write(os.path.join(indir, "{sample}.root".format(sample=sample)))
             infiles.close()
-        outdir = indir + sample + "_WS/"
-        os.system("mkdir -p {}".format(outdir))
+
+        time.sleep(1)
+
+        eosoutdir = eosbase.format(tag=options.tag + "_ws", year=options.era, sample=sample)
+        if '/eos/cms' in eosoutdir:
+            eosoutdir = eosoutdir.replace('/eos/cms', 'root://eoscms.cern.ch/')
+            os.system("eos mkdir -p {}".format(eosoutdir.replace('root://eoscms.cern.ch/','')))
+        else:
+            raise NameError(eosoutdir)
 
         with open(os.path.join(jobs_dir, "script.sh"), "w") as scriptfile:
             script = script_TEMPLATE.format(
                 cmssw_base=cmssw_base,
                 ismc=options.isMC,
                 era=options.era,
-                outputdir=outdir,
-                indir = "{indir}/{sample}/".format(sample=sample, indir=indir),
+                eosoutdir=eosoutdir,
             )
             scriptfile.write(script)
             scriptfile.close()
@@ -115,18 +122,20 @@ def main():
         with open(os.path.join(jobs_dir, "condor.sub"), "w") as condorfile:
             condor = condor_TEMPLATE.format(
                 transfer_file= ",".join([
-                    "../condor_HH_WS.py"
-                    #"../python/SUEP_Producer.py",
-                    #"../python/SumWeights.py"
+                    "../condor_HH_WS.py",
+                    "../python/SumWeights.py",
+                    "../python/HH_Producer.py",
+                    "../btag_weights.jsonl"
                 ]),
                 jobdir=jobs_dir,
                 queue=options.queue
             )
             condorfile.write(condor)
             condorfile.close()
+
         if options.dryrun:
             continue
-
+        
         htc = subprocess.Popen(
             "condor_submit " + os.path.join(jobs_dir, "condor.sub"),
             shell  = True,
@@ -138,6 +147,6 @@ def main():
         out, err = htc.communicate()
         exit_status = htc.returncode
         logging.info("condor submission status : {}".format(exit_status))
-
+        
 if __name__ == "__main__":
     main()

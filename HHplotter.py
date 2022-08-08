@@ -205,12 +205,12 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
     return categorized_yields
 
 def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False):
-    with open(f'{year}_sample_reference.json', 'r') as infile:
+    with open(f'{year}_sample_reference_new.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'Radion', 'Graviton', 'NonRes']:
+        for category in ['QCD', 'Radion', 'Graviton', 'NonRes', 'NonResVBF']:
         #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
@@ -239,6 +239,9 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         event_variances = {}
         # TODO Only one for loop here.
         for key, value in histograms.items():
+             # THIS IS WHERE YOU PRINT THINGS WHEN THINGS GO WRONG
+ #           print(key)
+ #           print(name)
             event_yields[key] = np.abs(value[idx][1].numpy())[0]
             event_variances[key] = np.abs(value[idx][1].variances)
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
@@ -246,6 +249,12 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
         output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
         total_var = output_var['Other'] + output_var['SMHiggs'] + output_var['DY'] + output_var['TT']
+        if print_yields:
+            if name == 'BDTscore':
+                print("yooo cHHH1", output['cHHH1'].sum())
+
+        if year == '2016':
+            output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
 
         for category in output:
             df_dict[category].append(output[category])
@@ -303,6 +312,9 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                     print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
 
     logging.info('Finished getting bins and event yields.')
+#    for key in df_dict:
+#        print(key, len(df_dict[key]))
+    
     return pd.DataFrame(df_dict)
 
 def btag_ratio(all_event_yields, year, filepath, overwrite):
@@ -559,7 +571,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     name = event_yields['sample_name']
     bins = event_yields['bins']
 
- #   Signal = event_yields['NonResHHH1'] * 0.031047 * 0.004
+    Signal = event_yields['cHHH1'] #* 0.031047 * 0.004
 
     if event_yields['sample_name']=="BDTscore":
         if not datacard:
@@ -603,21 +615,22 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                histtype='stepfilled', edgecolor='black', zorder=1,
                stacked=True, color=plotting_colors, label=labels)
 
-#    sig_weight = Signal.transpose()
-#    sig_x = ([binc] * sig_weight.shape[1]).transpose()
+    #sig_weight = Signal.transpose()
+    #sig_x = ([binc] * sig_weight.shape[1]).transpose()
+    #print("sigx", sig_x)
 
-#    upper.hist(x=sig_x, bins=bins, weights=sig_weight,
-#               histtype='step', zorder=1)
+    #upper.hist(x=sig_x, bins=bins, weights=sig_weight,
+    #           histtype='step', zorder=1)
 
-#    upper.stairs(
-#        edges= bins,
-#        values= Signal,
-#        # hatch="///",
-#        label="HH(llbbqq)",
-#        facecolor="red",
-#        linewidth=1,
-#        color="red",
-#    )
+    upper.stairs(
+        edges= bins,
+        values= Signal,
+        # hatch="///",
+        label="cHHH1 (1pb)",
+        facecolor="orchid",
+        linewidth=1,
+        color="orchid",
+    )
 
     upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
 
@@ -643,7 +656,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                       color='black')
     lower.set_xlabel(name, x=1, ha='right')
     lower.set_ylabel("Data/MC", fontsize = 10)
-    lower.set_ylim(0.75, 1.25)
+    lower.set_ylim(0.5, 1.5)
     yerr = np.sqrt(Data) / MC
 
     chi2 = 0
@@ -828,7 +841,6 @@ def main():
             new_plotting(df.iloc[rowidx], bkgd_norm, args.year, args.channel, outdir=outdir, print_yields=args.yields, datacard=args.datacard, bdtscores_to_csv=args.bdtscores)
 
     logging.info(f'Finished making plots and saved to {outdir}.')
-
     if args.datacard:
         fname = f'QCD_estimate_{args.year}.root'
         f = uproot.recreate(fname, compression=uproot.ZLIB(4))
