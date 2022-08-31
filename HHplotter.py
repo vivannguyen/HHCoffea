@@ -210,7 +210,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'Radion', 'Graviton', 'NonRes', 'NonResVBF']:
+        for category in ['QCD', 'Radion', 'Graviton']:#, 'NonRes', 'NonResVBF']:
         #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
@@ -235,6 +235,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         # TODO make this more robust
         if "genEventSumw" == name:
             continue
+        if "sys" in name:
+            continue
         event_yields = {}
         event_variances = {}
         # TODO Only one for loop here.
@@ -242,12 +244,14 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
              # THIS IS WHERE YOU PRINT THINGS WHEN THINGS GO WRONG
  #           print(key)
  #           print(name)
-            event_yields[key] = np.abs(value[idx][1].numpy())[0]
-            event_variances[key] = np.abs(value[idx][1].variances)
+            event_yields[key] = value[idx][1].numpy()[0]
+            event_variances[key] = value[idx][1].variances
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
-        output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
-        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
+        #output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
+        #output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
+        output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
+        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
         total_var = output_var['Other'] + output_var['SMHiggs'] + output_var['DY'] + output_var['TT']
         if print_yields:
             if name == 'BDTscore':
@@ -576,7 +580,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     if event_yields['sample_name']=="BDTscore":
         if not datacard:
             # slice depends on how many total bins in the BDT score distribution
-            Data[21:] = 0
+            Data[40:] = 0
 
     MC += Other
 
