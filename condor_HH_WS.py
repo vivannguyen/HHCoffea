@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser("")
 parser.add_argument('--isMC', type=int, default=1, help="")
 parser.add_argument('--jobNum', type=int, default=1, help="")
 parser.add_argument('--era', type=str, default="2018", help="")
-parser.add_argument('--doSyst', type=int, default=1, help="")
+parser.add_argument('--doSyst', type=int, default=0, help="")
 parser.add_argument('--infile', type=str, default=None, help="")
 parser.add_argument('--dataset', type=str, default="X", help="")
 parser.add_argument('--nevt', type=str, default=-1, help="")
@@ -66,8 +66,8 @@ if float(options.nevt) > 0:
     pre_selection += ' && (Entry$ < {})'.format(options.nevt)
 
 #pro_syst = ["ElectronEn", "MuonEn"] #, "", "jer"]
-pro_syst = ["ElectronEn", "MuonEn", "jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]
-
+pro_syst = ["ElectronEn", "MuonEn", "jer","jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]
+#pro_syst = []
 if options.era == '2016':
     pro_syst.extend(["jesAbsolute_2016","jesBBEC1_2016","jesEC2_2016","jesHF_2016","jesRelativeSample_2016"])
 if options.era == '2017':
@@ -75,6 +75,7 @@ if options.era == '2017':
 if options.era == '2018':
     pro_syst.extend(["jesAbsolute_2018","jesBBEC1_2018","jesEC2_2018","jesHF_2018","jesRelativeSample_2018"])
 
+#ext_syst = ["QCDScale0w", "QCDScale1w", "QCDScale2w"]
 ext_syst = ["puWeight", "PrefireWeight", "PDF", "MuonSF", "ElectronSF", "TriggerSFWeight", "QCDScale0w", "QCDScale1w", "QCDScale2w",
             "hf", "lf", "cferr1", "cferr2"]
 

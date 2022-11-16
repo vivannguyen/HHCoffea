@@ -72,7 +72,7 @@ def main():
     options = parser.parse_args()
 
     cmssw_base = os.environ['CMSSW_BASE']
-    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/{}/{}/".format(options.tag, options.era)
+    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/test/condortesting/"
     eosbase = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/vivan/{tag}/{year}/{sample}/"
 
     for sample in os.listdir(indir):
@@ -125,7 +125,8 @@ def main():
                     "../condor_HH_WS.py",
                     "../python/SumWeights.py",
                     "../python/HH_Producer.py",
-                    "../btag_weights.jsonl"
+                    "../btag_weights.jsonl",
+                    "../2016newfinalselecttest"
                 ]),
                 jobdir=jobs_dir,
                 queue=options.queue
