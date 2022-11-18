@@ -207,12 +207,13 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
     return categorized_yields
 
 def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False):
-    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
+#    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
+    with open(f'{year}_sample_reference_new.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
     if filter_categories:
-        for category in ['QCD', 'Radion', 'Graviton', 'NonRes']:#, 'NonResVBF']:
+        for category in ['QCD', 'Radion', 'Graviton', 'NonRes', 'NonResVBF']:
         #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
@@ -312,7 +313,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['down'].append(total_sys_down)
 
         if print_yields:
-            if name == 'BDTscore':
+            #if name == 'BDTscore':
+            if name == 'Zlep_cand_mass':
                 if year == '2016':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
                          'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCUETP8M1_PSweights_13TeV-madgraph-pythia8'
@@ -329,7 +331,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                         ]
                 if year == '2017':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
+                         #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
                          #'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
@@ -738,8 +740,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     name = event_yields['sample_name']
     bins = event_yields['bins']
 
-    #Signal = event_yields['cHHH1'] #* 0.031047 * 0.004
-    Signal = event_yields['VBF1'] #* 0.031047 * 0.004
+    Signal = event_yields['cHHH1'] #* 0.031047 * 0.004
+    #Signal = event_yields['VBF1'] #* 0.031047 * 0.004
 
     blinding_bins = round(len(bins) * 0.8)
     print('before', len(bins))
@@ -806,8 +808,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         edges= bins,
         values= Signal,
         # hatch="///",
-        #label="cHHH1 (1pb)",
-        label="VBF cv,c2v,c3=1 (1pb)",
+        label="cHHH1 (1pb)",
+        #label="VBF cv,c2v,c3=1 (1pb)",
         facecolor="orchid",
         linewidth=1,
         color="orchid",

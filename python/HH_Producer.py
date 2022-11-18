@@ -96,54 +96,54 @@ class HH_NTuple(ProcessorABC):
 #                                        0.84312435, 0.88327313, 0.9047344 , 0.97125334, 1.0]
 #
         histograms = {
-#            'Zlep_cand_mass_QCD_B': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_QCD_B',
-#                'region': ['QCD_B'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
-#            'Zlep_cand_mass_QCD_C': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_QCD_C',
-#                'region': ['QCD_C'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
-#            'Zlep_cand_mass_QCD_D': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_QCD_D',
-#                'region': ['QCD_D'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
-#            'Zlep_cand_mass_DYcontrol': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_DYcontrol',
-#                'region': ['DYcontrol'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
-#            },
-#            'Zlep_cand_mass_DYcontrol_QCD_C': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_DYcontrol_QCD_C',
-#                'region': ['DYcontrol_QCD_C'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
-#            },
-#            'Zlep_cand_mass_TTcontrol': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_TTcontrol',
-#                'region': ['TTcontrol'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
-#            },
-#            'Zlep_cand_mass_TTcontrol_QCD_C': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_TTcontrol_QCD_C',
-#                'region': ['TTcontrol_QCD_C'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
-#            },
-#            'Zlep_cand_mass': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass',
-#                'region': ['signal'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
+            'Zlep_cand_mass_QCD_B': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_QCD_B',
+                'region': ['QCD_B'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+            },
+            'Zlep_cand_mass_QCD_C': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_QCD_C',
+                'region': ['QCD_C'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+            },
+            'Zlep_cand_mass_QCD_D': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_QCD_D',
+                'region': ['QCD_D'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+            },
+            'Zlep_cand_mass_DYcontrol': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_DYcontrol',
+                'region': ['DYcontrol'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
+            },
+            'Zlep_cand_mass_DYcontrol_QCD_C': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_DYcontrol_QCD_C',
+                'region': ['DYcontrol_QCD_C'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr':  40, 'lo': 80, 'hi': 100}
+            },
+            'Zlep_cand_mass_TTcontrol': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_TTcontrol',
+                'region': ['TTcontrol'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
+            },
+            'Zlep_cand_mass_TTcontrol_QCD_C': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_TTcontrol_QCD_C',
+                'region': ['TTcontrol_QCD_C'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': 70, 'lo': 0, 'hi': 700}
+            },
+            'Zlep_cand_mass': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass',
+                'region': ['signal'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
+            },
 #            'Zlep_cand_pt': {
 #                'target': 'Zlep_cand_pt',
 #                'name'  : 'Zlep_cand_pt',
@@ -914,57 +914,60 @@ class HH_NTuple(ProcessorABC):
 #                'region': ['QCD_C'],
 #                'axis': {'label': 'phi1_Zjj', 'n_or_arr': 90, 'lo': -4, 'hi': 4}
 #            },
-## For btag Event Weight
-#            'ngood_jets': {
-#                'target': 'ngood_jets',
-#                'name'  : 'ngood_jets',
-#                'region': ['signal_btag'],
-#                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-#            },
-#            'ngood_jets_btagSF': {
-#                'target': 'ngood_jets',
-#                'name'  : 'ngood_jets_btagSF',
-#                'region': ['signal_btag'],
-#                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-#            },
-#            'ngood_jets_btagSF_nobtagSF': {
-#                'target': 'ngood_jets',
-#                'name'  : 'ngood_jets_nobtagSF',
-#                'region': ['signal_btag'],
-#                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
-#            },
-## For tt Event Weight
-#            'Zlep_cand_mass_tt_weight': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_tt_weight',  # name to write to histogram
-#                'region': ['signal'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
-#            'Zlep_cand_mass_nott_weight': {
-#                'target': 'Zlep_cand_mass',
-#                'name'  : 'Zlep_cand_mass_nott_weight',  # name to write to histogram
-#                'region': ['signal'],
-#                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
-#            },
-# BDT score
-            'h_bdtscore' : {
-                'target': 'BDTscore',
-                'name': 'BDTscore',
+# For btag Event Weight
+            'ngood_jets': {
+                'target': 'ngood_jets',
+                'name'  : 'ngood_jets',
+                'region': ['signal_btag'],
+                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+            },
+            'ngood_jets_btagSF': {
+                'target': 'ngood_jets',
+                'name'  : 'ngood_jets_btagSF',
+                'region': ['signal_btag'],
+                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+            },
+            'ngood_jets_btagSF_nobtagSF': {
+                'target': 'ngood_jets',
+                'name'  : 'ngood_jets_nobtagSF',
+                'region': ['signal_btag'],
+                'axis': {'label': 'ngood_jets', 'n_or_arr': 21, 'lo': -0.5, 'hi': 20.5}
+            },
+# For tt Event Weight
+            'Zlep_cand_mass_tt_weight': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_tt_weight',  # name to write to histogram
                 'region': ['signal'],
-                'axis': {'label': 'BDTscore', 'n_or_arr': bdt_bin}
-                #'axis': {'label': 'BDTscore', 'n_or_arr': 50, 'lo': 0., 'hi': 1.}
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
             },
-            'h_bdtscore_QCD_C': {
-                'target': 'BDTscore',
-                'name'  : 'BDTscore_QCD_C',
-                'region': ['QCD_C'],
-                'axis': {'label': 'BDTscore', 'n_or_arr': bdt_bin}
-                #'axis': {'label': 'BDTscore', 'n_or_arr': 50, 'lo': 0., 'hi': 1.}
+            'Zlep_cand_mass_nott_weight': {
+                'target': 'Zlep_cand_mass',
+                'name'  : 'Zlep_cand_mass_nott_weight',  # name to write to histogram
+                'region': ['signal'],
+                'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
             },
+# BDT score
+#            'h_bdtscore' : {
+#                'target': 'BDTscore',
+#                'name': 'BDTscore',
+#                'region': ['signal'],
+#                'axis': {'label': 'BDTscore', 'n_or_arr': bdt_bin}
+#                #'axis': {'label': 'BDTscore', 'n_or_arr': 50, 'lo': 0., 'hi': 1.}
+#            },
+#            'h_bdtscore_QCD_C': {
+#                'target': 'BDTscore',
+#                'name'  : 'BDTscore_QCD_C',
+#                'region': ['QCD_C'],
+#                'axis': {'label': 'BDTscore', 'n_or_arr': bdt_bin}
+#                #'axis': {'label': 'BDTscore', 'n_or_arr': 50, 'lo': 0., 'hi': 1.}
+#            },
         }
         selection = {
                 "signal" : [
-                    "event.ngood_bjetsM{sys}     >  1",
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
+                    #"event.ngood_bjetsM{sys}     >  1",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
@@ -974,13 +977,15 @@ class HH_NTuple(ProcessorABC):
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
                     "event.trailing_jet_pt{sys} > 20",
-                    "event.met_pt{sys} < 75 ",
+                    #"event.met_pt{sys} < 75 ",
                     "event.dR_j1b1{sys} > 0",
                     "event.dR_j1b2{sys} > 0",
                     "event.dR_j2b1{sys} > 0",
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "signal_btag" : [
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
@@ -996,7 +1001,9 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_B" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 2",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1012,7 +1019,10 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_C" : [
-                    "event.ngood_bjetsM{sys}     >  1",
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
+                    #"event.ngood_bjetsM{sys}     >  1",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 3",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1022,14 +1032,16 @@ class HH_NTuple(ProcessorABC):
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
                     "event.trailing_jet_pt{sys} > 20",
-                    "event.met_pt{sys} < 75 ",
+                    #"event.met_pt{sys} < 75 ",
                     "event.dR_j1b1{sys} > 0",
                     "event.dR_j1b2{sys} > 0",
                     "event.dR_j2b1{sys} > 0",
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_D" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+   #                 "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 4",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1045,7 +1057,9 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "DYcontrol" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+  #                  "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1062,7 +1076,9 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "DYcontrol_QCD_C" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+ #                   "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 3",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1079,7 +1095,9 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "TTcontrol" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1096,7 +1114,9 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "TTcontrol_QCD_C" : [
-                    "event.ngood_bjetsT{sys}     >  0",
+                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  0",
+                    "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 3",
                     "event.leading_lep_pt{sys}  > 20",
@@ -1138,7 +1158,7 @@ class HH_NTuple(ProcessorABC):
                 if json_read['year'] == era:
                     self.njet_weights = np.fromiter(json_read['weights'].values(), dtype=np.float64)
                     self.njet_weights[self.njet_weights == -999] = 1
-                    self.njet_weights = np.concatenate([self.njet_weights, np.tile(self.njet_weights[-1], 20)])
+                    self.njet_weights = np.concatenate([self.njet_weights, np.tile(self.njet_weights[-1], 100)])
                     break
         #print('NJET WEIGHTS', self.njet_weights)
 
