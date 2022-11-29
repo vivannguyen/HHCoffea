@@ -208,7 +208,7 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
 
 def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False):
 #    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
-    with open(f'{year}_sample_reference_new.json', 'r') as infile:
+    with open(f'{year}_sample_reference_DY2D.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
@@ -220,14 +220,14 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
     df_dict = {}
     df_dict['sample_name'] = []
     df_dict['bins'] = []
-    df_dict['var'] = []
+#    df_dict['var'] = []
     for category in categories:
         df_dict[category] = []
         df_dict['var_'+category] = []
-    df_dict['Other'] = []
-    df_dict['var_Other'] = []
-    df_dict['up'] = []
-    df_dict['down'] = []
+#    df_dict['Other'] = []
+#    df_dict['var_Other'] = []
+#    df_dict['up'] = []
+#    df_dict['down'] = []
 
     logging.info('Getting bins and event yields.')
 
@@ -281,23 +281,23 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
             event_variances[key] = value[idx][1].variances
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
-        output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
-        output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
-        output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
-        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
+#        output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
+#        output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
+#        output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
+#        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
 
 #        output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
 
 #        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
-        output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
-        output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
+#        output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
+#        output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
 
-        total_var = output_var['Other'] + output_var['SMHiggs'] + output_var['DY'] + output_var['TT']
-        total_sys_up = output_sys_up['Other'] + output_sys_up['SMHiggs'] + output_sys_up['DY'] + output_sys_up['TT']
-        total_sys_down = output_sys_down['Other'] + output_sys_down['SMHiggs'] + output_sys_down['DY'] + output_sys_down['TT']
-        if print_yields:
-            if name == 'BDTscore':
-                print("yooo cHHH1", output['cHHH1'].sum())
+        total_var = output_var['DY']
+ #       total_sys_up = output_sys_up['Other'] + output_sys_up['SMHiggs'] + output_sys_up['DY'] + output_sys_up['TT']
+ #       total_sys_down = output_sys_down['Other'] + output_sys_down['SMHiggs'] + output_sys_down['DY'] + output_sys_down['TT']
+ #       if print_yields:
+ #           if name == 'BDTscore':
+ #               print("yooo cHHH1", output['cHHH1'].sum())
 
         if year == '2016':
             output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
@@ -306,11 +306,11 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         for category in output:
             df_dict[category].append(output[category])
             df_dict['var_'+category].append(output_var[category])
-        df_dict['var'].append(total_var)
+#        df_dict['var'].append(total_var)
         df_dict['bins'].append(roothist.numpy()[1])
         df_dict['sample_name'].append(name)
-        df_dict['up'].append(total_sys_up)
-        df_dict['down'].append(total_sys_down)
+#        df_dict['up'].append(total_sys_up)
+#        df_dict['down'].append(total_sys_down)
 
         if print_yields:
             #if name == 'BDTscore':
@@ -330,7 +330,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                          #'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
                         ]
                 if year == '2017':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+                    y = [#'GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
                          #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
                          #'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
@@ -343,7 +343,15 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                          #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
                          #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
                          'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
+                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         'DY1JetsToLL_M-50_LHEZpT_150-250_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY1JetsToLL_M-50_LHEZpT_250-400_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY1JetsToLL_M-50_LHEZpT_400-inf_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY1JetsToLL_M-50_LHEZpT_50-150_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY2JetsToLL_M-50_LHEZpT_150-250_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY2JetsToLL_M-50_LHEZpT_250-400_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY2JetsToLL_M-50_LHEZpT_400-inf_TuneCP5_13TeV-amcnloFXFX-pythia8',
+                         'DY2JetsToLL_M-50_LHEZpT_50-150_TuneCP5_13TeV-amcnloFXFX-pythia8'
                         ]
                 if year == '2018':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
@@ -709,57 +717,57 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     upper = axarr[0]
     lower = axarr[1]
 
-    if print_yields:
-        if event_yields['sample_name']=="event_yield_A":
-            print('DY yield: ', event_yields['DY'])
-            print('TT yield: ', event_yields['TT'])
+#    if print_yields:
+#        if event_yields['sample_name']=="event_yield_A":
+#            print('DY yield: ', event_yields['DY'])
+#            print('TT yield: ', event_yields['TT'])
 
     # This gives the copy warning.
-    event_yields['DY'] *= bkgd_norm[1]
-    event_yields['TT'] *= bkgd_norm[2]
+#    event_yields['DY'] *= bkgd_norm[1]
+#    event_yields['TT'] *= bkgd_norm[2]
 
     # For comparing to data cards
     if event_yields['sample_name']=="BDTscore":
 #    if event_yields['sample_name']=="Zlep_cand_mass_DYcontrol":
         print('DY yield: ', event_yields['DY'].sum())
-        print('TT yield: ', event_yields['TT'].sum())
-        print('SingleTop yield: ', event_yields['SingleTop'].sum())
-        print('SMHiggs yield: ', event_yields['SMHiggs'].sum())
-        print('WJets yield: ', event_yields['Wjets'].sum())
-        print('VV yield: ', event_yields['VV'].sum())
-        print('ttV yield: ', event_yields['ttV'].sum())
-        print('QCD yield: ', event_yields['QCD_estimate'].sum())
-        print('Other yield: ', event_yields['Other'].sum())
-        print('Data yield: ', event_yields['Data'].sum())
+#        print('TT yield: ', event_yields['TT'].sum())
+#        print('SingleTop yield: ', event_yields['SingleTop'].sum())
+#        print('SMHiggs yield: ', event_yields['SMHiggs'].sum())
+#        print('WJets yield: ', event_yields['Wjets'].sum())
+#        print('VV yield: ', event_yields['VV'].sum())
+#        print('ttV yield: ', event_yields['ttV'].sum())
+#        print('QCD yield: ', event_yields['QCD_estimate'].sum())
+#        print('Other yield: ', event_yields['Other'].sum())
+#        print('Data yield: ', event_yields['Data'].sum())
 #        print('Signal yield: ', event_yields['NonResHHH1'].sum()*0.031047*0.004)
 
-    mc_categories = ['DY', 'TT', 'SMHiggs', 'QCD_estimate']
+    mc_categories = ['DY', 'DY2D']
     MC = event_yields[mc_categories].sum()
-    Data = event_yields['Data']
-    Other = event_yields['Other']
+#    Data = event_yields['Data']
+#    Other = event_yields['Other']
     name = event_yields['sample_name']
     bins = event_yields['bins']
 
-    Signal = event_yields['cHHH1'] #* 0.031047 * 0.004
+#    Signal = event_yields['cHHH1'] #* 0.031047 * 0.004
     #Signal = event_yields['VBF1'] #* 0.031047 * 0.004
 
     blinding_bins = round(len(bins) * 0.8)
     print('before', len(bins))
     print('after', blinding_bins)
 
-    if event_yields['sample_name']=="BDTscore":
-        if not datacard:
-            # slice depends on how many total bins in the BDT score distribution
-            Data[blinding_bins:] = 0
+ #   if event_yields['sample_name']=="BDTscore":
+ #       if not datacard:
+ #           # slice depends on how many total bins in the BDT score distribution
+ #           Data[blinding_bins:] = 0
 
-    MC += Other
+  #  MC += Other
 
     # The first bin has a value of 0 and will give a warning.
-    ratio = Data/MC
-    ratio_sys_up = event_yields['up']/MC
-    ratio_sys_down = event_yields['down']/MC
-    ratio_sys_up[blinding_bins:]=0
-    ratio_sys_down[blinding_bins:]=0
+#    ratio = 0/MC
+ #   ratio_sys_up = event_yields['up']/MC
+ #   ratio_sys_down = event_yields['down']/MC
+ #   ratio_sys_up[blinding_bins:]=0
+ #   ratio_sys_down[blinding_bins:]=0
 #    print("up", ratio_sys_up)
 #    print("down", ratio_sys_down)
 #    print("up ratio", ratio+ratio_sys_up)
@@ -768,34 +776,47 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     binup = bins[1:]
     xerr = np.diff(bins)*0.5
 
-    upper.errorbar(binc, Data, xerr = None, yerr = np.sqrt(Data), fmt = 'o',
-                   zorder=10, color='black', label='Data', markersize=3)
+  #  upper.errorbar(binc, Data, xerr = None, yerr = np.sqrt(Data), fmt = 'o',
+  #                 zorder=10, color='black', label='Data', markersize=3)
 
-    if event_yields['sample_name']=="BDTscore":
-        if bdtscores_to_csv:
-            asdf = np.column_stack((binc,Signal,MC))
-            np.savetxt(f'BDTscores_{year}{channel}.csv', asdf, delimiter=',', fmt='%f')
+   # if event_yields['sample_name']=="BDTscore":
+   #     if bdtscores_to_csv:
+   #         asdf = np.column_stack((binc,Signal,MC))
+   #         np.savetxt(f'BDTscores_{year}{channel}.csv', asdf, delimiter=',', fmt='%f')
 
-    all_weights = np.vstack([event_yields['SMHiggs'],
-                             event_yields['Other'],
-                             event_yields['QCD_estimate'],
-                             event_yields['DY'],
-                             event_yields['TT']]).transpose()
+    all_weights = np.vstack([#event_yields['DY2D'],
+                             #event_yields['Other'],
+                             #event_yields['QCD_estimate'],
+                             #event_yields['DY'],
+                             event_yields['DY']]).transpose()
     all_x = np.vstack([binc] * all_weights.shape[1]).transpose()
 
-    COLORMAP = {'SMhiggs': COLORS[4],
+    all_weightsDY2 = np.vstack([#event_yields['DY2D'],
+                             #event_yields['Other'],
+                             #event_yields['QCD_estimate'],
+                             #event_yields['DY'],
+                             event_yields['DY2D']]).transpose()
+    all_xDY2 = np.vstack([binc] * all_weightsDY2.shape[1]).transpose()
+
+    COLORMAP = {'DY2D': COLORS[4],
                 'Other': COLORS[3],
                 'DY': COLORS[1],
                 'TT': COLORS[0],
                 'QCD': COLORS[2],
                 'QCD_estimate':COLORS[5]}
 
-    labels = ['SMhiggs', 'Other', 'QCD', 'DY', 'TT']
+    labels = ['DY', 'DY2D']
     plotting_colors = [COLORMAP[s] for s in labels]
 
     upper.hist(x=all_x, bins=bins, weights=all_weights,
-               histtype='stepfilled', edgecolor='black', zorder=1,
-               stacked=True, color=plotting_colors, label=labels)
+               histtype='step',
+               label='DY', color='blue')
+    upper.hist(x=all_xDY2, bins=bins, weights=all_weightsDY2,
+               histtype='step',
+               label='DY2D', color='red')
+#    upper.hist(x=all_x, bins=bins, weights=all_weights,
+#               histtype='stepfilled', edgecolor='black', zorder=1,
+#               stacked=True, color=plotting_colors, label=labels)
 
     #sig_weight = Signal.transpose()
     #sig_x = ([binc] * sig_weight.shape[1]).transpose()
@@ -804,18 +825,18 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     #upper.hist(x=sig_x, bins=bins, weights=sig_weight,
     #           histtype='step', zorder=1)
 
-    upper.stairs(
-        edges= bins,
-        values= Signal,
-        # hatch="///",
-        label="cHHH1 (1pb)",
-        #label="VBF cv,c2v,c3=1 (1pb)",
-        facecolor="orchid",
-        linewidth=1,
-        color="orchid",
-    )
+#    upper.stairs(
+#        edges= bins,
+#        values= Signal,
+#        # hatch="///",
+#        label="cHHH1 (1pb)",
+#        #label="VBF cv,c2v,c3=1 (1pb)",
+#        facecolor="orchid",
+#        linewidth=1,
+#        color="orchid",
+#    )
 
-    upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
+ #   upper.fill_between(binup, MC - np.sqrt(event_yields['var']), MC + np.sqrt(event_yields['var']), step='pre', hatch='///', alpha=0, zorder=2, label="MC Stat Err")
 
     upper.set_yscale("log")
     upper.set_ylim([0.01, 1000000])
@@ -840,19 +861,19 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     lower.set_xlabel(name, x=1, ha='right')
     lower.set_ylabel("Data/MC", fontsize = 10)
     lower.set_ylim(0.5, 1.5)
-    yerr = np.sqrt(Data) / MC
+    yerr = 0
 
     chi2 = 0
     nBins = 0
-    ratio_check = np.isfinite(ratio)
+#    ratio_check = np.isfinite(ratio)
 
-    for indx, r in enumerate(ratio):
-        if ratio_check[indx] and yerr[indx] > 0:
-            chi2 = chi2 + ((r-1)*(r-1))/(yerr[indx]*yerr[indx])
-            nBins = nBins + 1
+#    for indx, r in enumerate(ratio):
+#        if ratio_check[indx] and yerr[indx] > 0:
+#            chi2 = chi2 + ((r-1)*(r-1))/(yerr[indx]*yerr[indx])
+#            nBins = nBins + 1
 
 
-    lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
+#    lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
     #lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='slategrey')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
@@ -888,96 +909,16 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         fontsize=14,
     )
 
-    upper.text(
-        lower_label*0.95,max_y*0.1,r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
-        fontsize=8,
-    )
+#    upper.text(
+#        lower_label*0.95,max_y*0.1,r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
+#        fontsize=8,
+#    )
 
     upper.legend(bbox_to_anchor=(1, 1), loc=1, fontsize=9, ncol=2, frameon=False)
     fig.savefig(os.path.join(outdir, f'{name}_{year}.png'), bbox_inches='tight')
     plt.close()
     #plt.show()
 
-def plot_systematics(for_plot, year, channel, outdir=''):
-    log=True
-
-    for idx in range(1, len(for_plot), 2):
-        fig, axes = plt.subplots(nrows=2, dpi=150, figsize=(5, 5), gridspec_kw={'height_ratios': [5, 1]})
-        binc = (for_plot.iloc[0].bins[:-1] + for_plot.iloc[0].bins[1:]) / 2
-
-        axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[0].Sys, log=log, label='BDT score',
-                 histtype='step', color='black')
-        axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[idx].Sys, log=log, label='Up',
-                 histtype='step', linestyle='--', color='blue')
-        axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[idx + 1].Sys, log=log, label='Down',
-                 histtype='step', linestyle='--', color='red')
-
-        axes[1].step(binc, for_plot.iloc[idx].Sys/for_plot.iloc[0].Sys, color='blue')#linestyle='--', color='blue')
-        axes[1].step(binc, for_plot.iloc[idx + 1].Sys/for_plot.iloc[0].Sys, color='red')#linestyle='--', color='red')
-        axes[1].plot([0, 1], [1,1],linestyle=':', color='black')
-
-        axes[0].set_ylabel("Events/bin", y=1, ha='right')
-        axes[0].tick_params(axis='both', which='major', direction='in',
-                          bottom=True, right=False, top=False, left=True,
-                          color='black')
-        axes[0].tick_params(axis='both', which='minor', direction='in',
-                          bottom=True, right=False, top=False, left=True,
-                          color='black')
-        axes[1].set_xlabel(for_plot.iloc[idx].systematic_name, x=1, ha='right')
-        axes[1].set_ylabel("Ratio", fontsize = 10)
-
-        yacine1 = np.abs(np.max(for_plot.iloc[idx].Sys/for_plot.iloc[0].Sys) - 1)
-        yacine2 = np.abs(np.min(for_plot.iloc[idx + 1].Sys/for_plot.iloc[0].Sys) - 1)
-        nick = np.maximum(yacine1, yacine2)
-        axes[1].set_ylim((1-nick)*0.9,(1+nick)*1.1)
-
-    #    axes[1].xaxis.set_minor_locator(AutoMinorLocator())
-    #    axes[1].yaxis.set_minor_locator(AutoMinorLocator())
-        axes[1].tick_params(axis='both', which='major', direction='in', length=4,
-                          bottom=True, right=False, top=False, left=True,
-                          color='black')
-        axes[1].tick_params(axis='both', which='minor', direction='in', length=2,
-                          bottom=True, right=False, top=False, left=True,
-                          color='black')
-
-        axes[1].grid(visible=True, which='both', axis='y', linestyle=':')
-        axes[1].grid(visible=True, which='major', axis='x', linestyle=':')
-
-        max_y = axes[0].get_ylim()[1]
-        max_x = max(binc)
-        min_x = min(binc)
-        x_range = max_x - min_x
-        lower_label = min_x - x_range*0.05
-        upper_label = max_x - x_range*0.35
-
-        cms = axes[0].text(
-            lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
-            fontsize=16, fontweight='bold',
-        )
-
-        axes[0].text(
-            upper_label, max_y*1.08, f'{LUMI[year]:.1f} fb$^{{-1}}$ (13 TeV)',
-            #upper_label, max_y*1.08, '36 fb$^{{-1}}$ (13 TeV)',
-            fontsize=14,
-        )
-
-        if channel == 'electron':
-            text_channel = r'ee '+u'channel'
-        elif channel == 'muon':
-            text_channel = r'$\mu \mu$ '+u'channel'
-
-        axes[0].text(
-            0.05, max_y*0.65, text_channel,
-            fontsize=10, color='dimgrey'
-        )
-
-        axes[0].legend(bbox_to_anchor=(1, 1), loc=1, fontsize=9, frameon=False)
-
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
-        #os.mkdir(outdir)
-        fig.savefig(os.path.join(outdir, f'{for_plot.iloc[idx].systematic_name}_{year}.png'), bbox_inches='tight')
-        plt.close()
 
 
 def main():
@@ -1093,7 +1034,7 @@ def main():
 #    plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicstest{args.channel}{args.year}')
 
     if args.nonorm:
-        df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
+#        df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
         bkgd_norm = np.array([1.0, 1.0, 1.0])
        # btag_ratio_plot(df, args.year, outdir=outdir)
         if args.btag:
