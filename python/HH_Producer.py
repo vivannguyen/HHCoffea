@@ -144,12 +144,12 @@ class HH_NTuple(ProcessorABC):
                 'region': ['signal'],
                 'axis': {'label': 'Zlep_cand_mass', 'n_or_arr': zlep_bin}
             },
-#            'Zlep_cand_pt': {
-#                'target': 'Zlep_cand_pt',
-#                'name'  : 'Zlep_cand_pt',
-#                'region': ['signal'],
-#                'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
-#            },
+            'Zlep_cand_pt': {
+                'target': 'Zlep_cand_pt',
+                'name'  : 'Zlep_cand_pt',
+                'region': ['signal'],
+                'axis': {'label': 'Zlep_cand_pt', 'n_or_arr': 80, 'lo': 0, 'hi': 800}
+            },
 #            'Zlep_cand_eta': {
 #                'target': 'Zlep_cand_eta',
 #                'name'  : 'Zlep_cand_eta',
@@ -964,8 +964,8 @@ class HH_NTuple(ProcessorABC):
         }
         selection = {
                 "signal" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     #"event.ngood_bjetsM{sys}     >  1",
                     "event.lep_category{sys}    == 1",
@@ -973,6 +973,7 @@ class HH_NTuple(ProcessorABC):
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
                     "event.Zlep_cand_mass{sys} > 15",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -984,13 +985,14 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "signal_btag" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
                     "event.Zlep_cand_mass{sys} > 15",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1001,14 +1003,15 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_B" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 2",
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
                     "event.Zlep_cand_mass{sys} > 15",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1019,8 +1022,8 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_C" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     #"event.ngood_bjetsM{sys}     >  1",
                     "event.lep_category{sys}    == 1",
@@ -1028,6 +1031,7 @@ class HH_NTuple(ProcessorABC):
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
                     "event.Zlep_cand_mass{sys} > 15",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1039,14 +1043,15 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "QCD_D" : [
-                    "event.good_event{sys}     ==  1",
-   #                 "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 4",
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
                     "event.Zlep_cand_mass{sys} > 15",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1057,13 +1062,14 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "DYcontrol" : [
-                    "event.good_event{sys}     ==  1",
-  #                  "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1076,13 +1082,14 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "DYcontrol_QCD_C" : [
-                    "event.good_event{sys}     ==  1",
- #                   "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 3",
                     "event.leading_lep_pt{sys}  > 20",
                     "event.trailing_lep_pt{sys} > 10",
+                    "event.Zlep_cand_pt{sys} > 60",
                     "event.leading_Hbb_pt{sys} > 20",
                     "event.trailing_Hbb_pt{sys} > 20",
                     "event.leading_jet_pt{sys} > 20",
@@ -1095,8 +1102,8 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "TTcontrol" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 1",
@@ -1114,8 +1121,8 @@ class HH_NTuple(ProcessorABC):
                     "event.dR_j2b2{sys} > 0"
                 ],
                 "TTcontrol_QCD_C" : [
-                    "event.good_event{sys}     ==  1",
-#                    "event.ngood_jets{sys}     >  0",
+#                    "event.good_event{sys}     ==  1",
+#                    "event.ngood_jets{sys}     >  3",
                     "event.ngood_bjets{sys}     >  0",
                     "event.lep_category{sys}    == 1",
                     "event.event_category{sys}    == 3",
@@ -1170,20 +1177,20 @@ class HH_NTuple(ProcessorABC):
         return self._accumulator
 
     def process(self, df, *args):
-        features = ['met_pt','Higgsbb_cand_pt','Higgsbb_cand_mass','HiggsZZ_cand_mass','Zlep_cand_mass',
-                    'leading_Hbb_pt','leading_Hbb_btag','trailing_Hbb_pt','trailing_Hbb_btag',
-                    'dR_l1l2','dR_l1j1','dR_l1j2','dR_l1b1','dR_l1b2']
+#        features = ['met_pt','Higgsbb_cand_pt','Higgsbb_cand_mass','HiggsZZ_cand_mass','Zlep_cand_mass',
+#                    'leading_Hbb_pt','leading_Hbb_btag','trailing_Hbb_pt','trailing_Hbb_btag',
+#                    'dR_l1l2','dR_l1j1','dR_l1j2','dR_l1b1','dR_l1b2']
 
         year_str = str(self.era)
 
-        X = df[features]
-        X = ak.to_numpy(X).tolist()
+#        X = df[features]
+#        X = ak.to_numpy(X).tolist()
         #load BDT model
-        model = xgb.XGBClassifier()
+#        model = xgb.XGBClassifier()
         #model.load_model(f'models/{year_str}-uu-2btag-met75')
-        model.load_model(f'{year_str}newfinalselecttest')
-        bdtscore=model.predict_proba(X)[:,1]
-        df['BDTscore']=bdtscore
+#        model.load_model(f'{year_str}newfinalselecttest')
+#        bdtscore=model.predict_proba(X)[:,1]
+#        df['BDTscore']=bdtscore
 
         output = self.accumulator.identity()
 

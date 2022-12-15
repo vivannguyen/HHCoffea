@@ -3,11 +3,11 @@ import re
 
 from coffea.processor import run_uproot_job, futures_executor
 
-from python.HH_Producer import *
-from python.SumWeights import *
+#from python.HH_Producer import *
+#from python.SumWeights import *
 
-#from HH_Producer import *
-#from SumWeights import *
+from HH_Producer import *
+from SumWeights import *
 
 import uproot3 as uproot
 import argparse

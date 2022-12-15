@@ -39,23 +39,34 @@ COLORS=('#E33719','#2FDBCA','#F59D2D','#A9F274','#5CA4F5','#FF47EB')
 
 LUMI = {'2016':36, '2017':41.5, '2018': 59.8}
 
-def cleanup(samples_directory, hist_dir, xsections):
+def cleanup(samples_directory, another_samples_directory, hist_dir, xsections):
     sample_files = set([Path(f).stem
                         for f in glob.glob(os.path.join(samples_directory, '*.root'))])
+    another_sample_files = set([Path(f).stem
+                        for f in glob.glob(os.path.join(another_samples_directory, '*.root'))])
     histogram_files = set([Path(f).stem.replace('_WS_selections','')
                            for f in glob.glob(os.path.join(hist_dir, '*.root'))
                            ])
-    overlap = sample_files.intersection(histogram_files)
+#    overlap = sample_files.intersection(histogram_files)
     data_kwds = ['DoubleEG', 'DoubleMuon', 'SingleElectron', 'SingleMuon', 'EGamma']
     to_keep = []
-    for f in overlap:
+    for f in histogram_files:
         if any([kwd in f for kwd in data_kwds]):
             to_keep.append(f)
         else:
             if f in xsections:
                 to_keep.append(f)
+#    for f in to_keep:
+#        if f in sample_files:
     sample_paths = [os.path.join(samples_directory, f'{f}.root')
-                    for f in to_keep]
+        for f in to_keep]
+#        elif f in another_sample_files:
+    another_sample_paths = [os.path.join(another_samples_directory, f'{f}.root')
+        for f in to_keep if f not in sample_files]
+#    print("asdfasdfasdf SAMPLE", sample_paths)
+#    print("asdfasdfasdf ANOTHER SAMPLE", another_sample_paths)
+    sample_paths.extend(another_sample_paths)
+#    print("asdfasdfasdf SAMPLE EXTEND", sample_paths)
     hist_paths = [os.path.join(hist_dir, f'{f}_WS_selections.root')
                   for f in to_keep]
     return sample_paths, hist_paths
@@ -191,7 +202,7 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
                 elif sample not in event_yields:
                     print(f'{sample} not in event_yields')
                 elif sample not in normalizations:
-                    print(f'{sample} not in normalizations')
+                    print(f'{sample} not in normalizations cat not there')
         else:
             if sample not in normalizations and sample not in event_yields:
                 print(f'{sample} not in both')
@@ -206,9 +217,9 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
 
     return categorized_yields
 
-def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False):
+def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False, preselection=False):
 #    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
-    with open(f'{year}_sample_reference_new.json', 'r') as infile:
+    with open(f'{year}_sample_reference_ttvchanged_DY2D.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
@@ -283,12 +294,14 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
         output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
         output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
-        output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
-        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
 
-#        output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
+        if preselection:
+            output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
+            output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
+        else:
+            output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
+            output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
 
-#        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
         output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
         output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
 
@@ -313,8 +326,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['down'].append(total_sys_down)
 
         if print_yields:
-            #if name == 'BDTscore':
-            if name == 'Zlep_cand_mass':
+            if name == 'BDTscore':
+            #if name == 'Zlep_cand_mass':
                 if year == '2016':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
                          'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCUETP8M1_PSweights_13TeV-madgraph-pythia8'
@@ -337,13 +350,13 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
                          #'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
                          #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
                          #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
+                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
                         ]
                 if year == '2018':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
@@ -371,7 +384,7 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
     return pd.DataFrame(df_dict)
 
 def calculate_sys(histograms, normalizations, year, filter_categories=True, print_yields=False):
-    with open(f'{year}_sample_reference_new.json', 'r') as infile:
+    with open(f'{year}_sample_reference_ttvchanged_DY2D.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
@@ -449,12 +462,12 @@ def calculate_sys(histograms, normalizations, year, filter_categories=True, prin
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
         output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
         output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
-        #output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
-        #output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
+        output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
+        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
 
-        output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
+        #output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
+        #output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
 
-        output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
         output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
         output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
 
@@ -720,7 +733,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     # For comparing to data cards
     if event_yields['sample_name']=="BDTscore":
-#    if event_yields['sample_name']=="Zlep_cand_mass_DYcontrol":
+#    if event_yields['sample_name']=="Zlep_cand_mass":
         print('DY yield: ', event_yields['DY'].sum())
         print('TT yield: ', event_yields['TT'].sum())
         print('SingleTop yield: ', event_yields['SingleTop'].sum())
@@ -986,6 +999,9 @@ def main():
     parser.add_argument('--sample_dir', type=str, required=False,
                         default='/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v1/2016/',
                         help='Directory containing sample files.')
+    parser.add_argument('--another_sample_dir', type=str, required=False,
+                        default='/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v1/2016/',
+                        help='Another directory containing sample files.')
     parser.add_argument('--hist_dir', type=str, required=False,
                         default='/eos/user/v/vinguyen/coffeafiles/2016-fixed-rename/',
                         help='Directory containing histogram files.')
@@ -1013,6 +1029,8 @@ def main():
                         help='Overwrite btag weights file.')
     parser.add_argument('--yields', action='store_true', required=False,
                         help='Print yields for select samples.')
+    parser.add_argument('--preselection', action='store_true', required=False,
+                        help='Add wjets to background estimation.')
     parser.add_argument('--finalselection', action='store_true', required=False,
                         help='Apply background norms at preselection.')
     parser.add_argument('--bdtscores', action='store_true', required=False,
@@ -1039,11 +1057,12 @@ def main():
     logging.info(f'Year: {args.year}')
 
     xsections = get_xsections(args.xfile)
-    sample_paths, hist_paths = cleanup(args.sample_dir, args.hist_dir, xsections)
+    sample_paths, hist_paths = cleanup(args.sample_dir, args.another_sample_dir, args.hist_dir, xsections)
     histograms = get_histograms(hist_paths, args.year, args.channel)
     normalizations = get_normalizations(sample_paths, xsections, list(histograms.keys()), args.year)
+#    print(sample_paths)
 
-    df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories, print_yields=args.yields)
+    df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories, print_yields=args.yields, preselection=args.preselection)
 #    df_sys = calculate_sys(histograms, normalizations, args.year, filter_categories=True, print_yields=args.yields)
 
 #    df_sys['Sys'] = df_sys[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
@@ -1103,9 +1122,10 @@ def main():
         if args.finalselection:
             #for tt bar reweight and QCD positive bins only
             if args.channel == 'muon':
-                if args.year == '2016': bkgd_norm = (1.44, 1.34, 0.989)
-                if args.year == '2017': bkgd_norm = (1.50, 1.88, 1.26)
-                if args.year == '2018': bkgd_norm = (1.51, 1.68, 1.41)
+                if args.year == '2017': bkgd_norm = (1.81, 2.11, 1.3)
+#                if args.year == '2016': bkgd_norm = (1.44, 1.34, 0.989)
+#                if args.year == '2017': bkgd_norm = (1.50, 1.88, 1.26)
+#                if args.year == '2018': bkgd_norm = (1.51, 1.68, 1.41)
             if args.channel == 'electron':
                 if args.year == '2016': bkgd_norm = (0.997, 1.43, 1.01)
                 if args.year == '2017': bkgd_norm = (1.35, 1.81, 1.17)
