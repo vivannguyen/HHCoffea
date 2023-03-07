@@ -361,6 +361,38 @@ def aggregate_systematics(grp, threshold=500, drop_mets=True):
 
     return grp
 
+def systematics_func(df, threshold=500, drop_mets=True):
+    if np.count_nonzero(df['sample_name'].str.contains('sys').values) == 0:
+        logging.warning('No samples with \'sys\' in name. Systematics cannot be performed.')
+        return
+
+    df['Sys'] = df[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
+#        df.to_csv(f'isa{args.year}{args.channel}.csv', index=False)
+    df['nominal_name'] = df['sample_name'].str.split('_sys').str[0]
+    df['sys_type'] = ''
+    df.loc[df.sample_name.str.contains('Up'), 'sys_type'] = 'up'
+    df.loc[df.sample_name.str.contains('Down'), 'sys_type'] = 'down'
+    df = (df.groupby('nominal_name')
+          .apply(aggregate_systematics, drop_mets=True, threshold=500)
+          .reset_index(drop=True)
+          .query('~sample_name.str.contains("QCD_C")'))
+
+#        dftable = (df.copy()
+#                  .reset_index()
+#                  .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
+
+#        for_table = dftable[['systematic_name', 'min', 'max']].iloc[1::].to_latex(index=False)
+
+#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
+#            f.write(for_table)
+
+    for_plot = (df.copy()
+                .reset_index()
+                .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
+                        .str.replace('Up', '').str.replace('Down', '')))
+
+#        plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicsplots{args.channel}{args.year}')
+
 def btag_ratio(all_event_yields, year, filepath, overwrite):
     names_for_njets = np.array(['ngood_jets', 'ngood_jets_btagSF'])
     df_subset = (all_event_yields.set_index('sample_name')
@@ -595,7 +627,6 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     event_yields['DY'] *= bkgd_norm[1]
     event_yields['TT'] *= bkgd_norm[2]
 
-    print('SYSUPPPP', event_yields['up'])
     # For comparing to data cards
     if event_yields['sample_name']=="BDTscore":
 #    if event_yields['sample_name']=="Zlep_cand_mass":
@@ -635,8 +666,10 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     # The first bin has a value of 0 and will give a warning.
     ratio = Data/MC
 #    print("MC", MC)
-    ratio_sys_up = (event_yields['up'] * ratio)/MC
-    ratio_sys_down = (event_yields['up'] * ratio)/MC
+    if 'up' in event_yields:
+        ratio_sys_up = (event_yields['up'] * ratio)/MC
+    if 'down' in event_yields:
+        ratio_sys_down = (event_yields['down'] * ratio)/MC
 #    ratio_sys_up[blinding_bins:]=0
 #    ratio_sys_down[blinding_bins:]=0
     binc = bins[:-1] + np.diff(bins) * 0.5
@@ -737,7 +770,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
 
     lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
-    lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='lightsteelblue')
+    if 'up' in event_yields:
+        lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='lightsteelblue')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
     lower.yaxis.set_minor_locator(AutoMinorLocator())
@@ -948,34 +982,7 @@ def main():
     df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories, print_yields=args.yields, preselection=args.preselection)
 
     if args.systematics:
-        if np.count_nonzero(df['sample_name'].str.contains('sys').values) == 0:
-            raise RuntimeError('No samples with \'sys\' in name. Systematics cannot be performed.')
-        df['Sys'] = df[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
-#        df.to_csv(f'isa{args.year}{args.channel}.csv', index=False)
-        df['nominal_name'] = df['sample_name'].str.split('_sys').str[0]
-        df['sys_type'] = ''
-        df.loc[df.sample_name.str.contains('Up'), 'sys_type'] = 'up'
-        df.loc[df.sample_name.str.contains('Down'), 'sys_type'] = 'down'
-        df = (df.groupby('nominal_name')
-              .apply(aggregate_systematics, drop_mets=True, threshold=500)
-              .reset_index(drop=True)
-              .query('~sample_name.str.contains("QCD_C")'))
-
-#        dftable = (df.copy()
-#                  .reset_index()
-#                  .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
-
-#        for_table = dftable[['systematic_name', 'min', 'max']].iloc[1::].to_latex(index=False)
-
-#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
-#            f.write(for_table)
-
-        for_plot = (df.copy()
-                    .reset_index()
-                    .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
-                            .str.replace('Up', '').str.replace('Down', '')))
-
-#        plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicsplots{args.channel}{args.year}')
+        systematics_func(df)
 
     # Remove samples used for systematics.
     df = df[~df['sample_name'].str.contains('sys')]
