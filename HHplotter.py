@@ -17,6 +17,7 @@ import matplotlib._color_data as mcd
 import matplotlib.patches as mpatch
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import numpy as np
+import numpy.lib.recfunctions as rf
 import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
@@ -29,15 +30,9 @@ except:
     import uproot_methods
 logging.getLogger().setLevel(logging.INFO)
 
-#COLORS=list(sns.color_palette('Set2').as_hex())
 COLORS=('#E33719','#2FDBCA','#F59D2D','#A9F274','#5CA4F5','#FF47EB')
-#COLORS=('#E63719','#2FDBCA','#F59D2D','#ABF575','#5CA4F5','#FF47EB')
-#COLORS=('#B82721','#98D17C','#E06E2D','#4954B0','#56A3CD','#FF47EB')
-#COLORS=('#B82721','#7CAD51','#EDDCDA','#4954B0','#56A3CD','#FF47EB')
-#COLORS=('#FF4E48','#F58A55','#FFEDEB','#436BE6','#52DBA9','#FF47EB')
-#plt.style.use('physics.mplstyle')
 
-LUMI = {'2016':36, '2017':41.5, '2018': 59.8}
+LUMI = {'2016':36.3, '2017':41.5, '2018': 59.8}
 
 def cleanup(samples_directory, another_samples_directory, hist_dir, xsections):
     sample_files = set([Path(f).stem
@@ -56,17 +51,12 @@ def cleanup(samples_directory, another_samples_directory, hist_dir, xsections):
         else:
             if f in xsections:
                 to_keep.append(f)
-#    for f in to_keep:
-#        if f in sample_files:
+
     sample_paths = [os.path.join(samples_directory, f'{f}.root')
         for f in to_keep]
-#        elif f in another_sample_files:
     another_sample_paths = [os.path.join(another_samples_directory, f'{f}.root')
         for f in to_keep if f not in sample_files]
-#    print("asdfasdfasdf SAMPLE", sample_paths)
-#    print("asdfasdfasdf ANOTHER SAMPLE", another_sample_paths)
     sample_paths.extend(another_sample_paths)
-#    print("asdfasdfasdf SAMPLE EXTEND", sample_paths)
     hist_paths = [os.path.join(hist_dir, f'{f}_WS_selections.root')
                   for f in to_keep]
     return sample_paths, hist_paths
@@ -76,7 +66,6 @@ def get_histograms(hist_paths, year, channel):
 
     logging.info('Loading histograms into memory.')
     for filename in tqdm(hist_paths):
-
         if channel == 'muon': skip = ['SingleElectron','DoubleEG','EGamma']
         elif channel == 'electron': skip = ['SingleMuon','DoubleMuon']
         else:
@@ -100,10 +89,13 @@ def get_histograms(hist_paths, year, channel):
                 #if 'TTJet' in filename: continue
 
         samplename = Path(filename).stem.split('_WS')[0]
+        if "TT_" in filename:
+            print("[sup]", filename)
 
         f_sample = uproot.open(filename)
         histogram_sample = f_sample.allitems( filterclass=lambda cls: issubclass(cls, uproot_methods.classes.TH1.Methods))
         if not histogram_sample:
+            print("BAMBI", filename)
             continue
         histograms[samplename] = histogram_sample
 
@@ -198,11 +190,11 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
                     categorized_yields[category] = normalizations[sample] * event_yields[sample]
             except:
                 if sample not in normalizations and sample not in event_yields:
-                    print(f'{sample} not in both')
+                    print(f'[ERROR 1] {sample} not in both')
                 elif sample not in event_yields:
-                    print(f'{sample} not in event_yields')
+                    print(f'[ERROR 2] {sample} not in event_yields')
                 elif sample not in normalizations:
-                    print(f'{sample} not in normalizations cat not there')
+                    print(f'[ERROR 3] {sample} not in normalizations cat not there')
         else:
             if sample not in normalizations and sample not in event_yields:
                 print(f'{sample} not in both')
@@ -219,7 +211,9 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
 
 def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False, preselection=False):
 #    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
+#    with open(f'{year}_sample_reference_new.json', 'r') as infile:
     with open(f'{year}_sample_reference_ttvchanged_DY2D.json', 'r') as infile:
+#    with open(f'{year}_sample_reference_ttvchanged_jetbin.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
@@ -237,8 +231,8 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['var_'+category] = []
     df_dict['Other'] = []
     df_dict['var_Other'] = []
-    df_dict['up'] = []
-    df_dict['down'] = []
+#    df_dict['up'] = []
+#    df_dict['down'] = []
 
     logging.info('Getting bins and event yields.')
 
@@ -251,12 +245,12 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         # TODO make this more robust
         if "genEventSumw" == name:
             continue
+#        if "BDTscore_QCD_C_" in name:
+#            continue
         if "sys" in name:
             continue
-
-#        for idx, (name, roothist) in enumerate(tqdm(histograms[arb_key])):
-#            name = name.decode("utf-8")
-#            name = name.replace(";1", "")
+#        if "BDTscore" not in name:
+#            continue
 
         event_yields = {}
         event_variances = {}
@@ -267,33 +261,38 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         for key, value in histograms.items():
              # THIS IS WHERE YOU PRINT THINGS WHEN THINGS GO WRONG
 #            print(key)
-#            print(value)
+            #print(value)
 #            print(name)
-            sys_up = np.zeros(len(value[idx][1].numpy()[0]))
-            sys_down = np.zeros(len(value[idx][1].numpy()[0]))
-            for histogram in value:
-                hist_name = histogram[0].decode("utf-8").lower()
-                if "qcd_c" in hist_name: continue
-                if "up" in hist_name:
-#                    print("each hist", hist_name)
-#                    print("up hist", (np.sum(histogram[1].numpy()[0])-np.sum(value[idx][1].numpy()[0]))/ np.sum(value[idx][1].numpy()[0])  )
-#                    print("nom hist", value[idx][1].numpy()[0])
-                    sys_up = sys_up + np.sqrt((histogram[1].numpy()[0] - value[idx][1].numpy()[0])**2)
-#                    print("sys up", sys_up)
-                    #print(histogram[1].numpy()[0]-value[idx][1].numpy()[0])
-                if "down" in hist_name:
-                    sys_down = sys_down + np.sqrt((value[idx][1].numpy()[0]-histogram[1].numpy()[0])**2)
+#            sys_up = np.zeros(len(value[idx][1].numpy()[0]))
+#            sys_down = np.zeros(len(value[idx][1].numpy()[0]))
 
-            event_sys_up[key] = sys_up
-            event_sys_down[key] = sys_down
+ #           for histogram in value:
+ #               hist_name = histogram[0].decode("utf-8").lower()
+                #print("HIST_NAME", hist_name)
+#                if "qcd_c" in hist_name: continue
+#                if "up" in hist_name:
+                    #print("up hist name", hist_name)
+                    #print("nom-up", value[idx][1].numpy()[0]-histogram[1].numpy()[0])
+                    #print("up hist", histogram[1].numpy()[0])
+                    #print("up hist", (np.sum(histogram[1].numpy()[0])-np.sum(value[idx][1].numpy()[0]))/ np.sum(value[idx][1].numpy()[0])  )
+                    #print("nom hist", value[idx][1].numpy()[0])
+#                    sys_up = sys_up + (histogram[1].numpy()[0] - value[idx][1].numpy()[0])**2
+                    #print("sys up", sys_up)
+                    #print("sys_up", histogram[1].numpy()[0]-value[idx][1].numpy()[0])
+#                if "down" in hist_name:
+#                    sys_down = sys_down + np.sqrt((value[idx][1].numpy()[0]-histogram[1].numpy()[0])**2)
+
+#            event_sys_up[key] = sys_up
+#            event_sys_down[key] = sys_down
 
             # Getting the idx from the top for loop, this loop goes over each sample, each key is the sample
             event_yields[key] = value[idx][1].numpy()[0]
             event_variances[key] = value[idx][1].variances
+
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
-        output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
-        output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
+#        output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category, var=True)
+#        output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category, var=True)
 
         if preselection:
             output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
@@ -302,19 +301,22 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
             output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
             output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
 
-        output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
-        output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
+#        output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
+#        output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
 
         total_var = output_var['Other'] + output_var['SMHiggs'] + output_var['DY'] + output_var['TT']
-        total_sys_up = output_sys_up['Other'] + output_sys_up['SMHiggs'] + output_sys_up['DY'] + output_sys_up['TT']
-        total_sys_down = output_sys_down['Other'] + output_sys_down['SMHiggs'] + output_sys_down['DY'] + output_sys_down['TT']
+#        total_sys_up = output_sys_up['Other'] + output_sys_up['SMHiggs'] + output_sys_up['DY'] + output_sys_up['TT']
+#        total_sys_down = output_sys_down['Other'] + output_sys_down['SMHiggs'] + output_sys_down['DY'] + output_sys_down['TT']
+
+#        print("TOTALSYSUP", np.sqrt(total_sys_up))
+
         if print_yields:
             if name == 'BDTscore':
                 print("yooo cHHH1", output['cHHH1'].sum())
 
         if year == '2016':
             output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
-            output['VBF1'] = output['VBF1']*1000 #scale 2016 to 1pb
+#            output['VBF1'] = output['VBF1']*1000 #scale 2016 to 1pb
 
         for category in output:
             df_dict[category].append(output[category])
@@ -322,33 +324,13 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         df_dict['var'].append(total_var)
         df_dict['bins'].append(roothist.numpy()[1])
         df_dict['sample_name'].append(name)
-        df_dict['up'].append(total_sys_up)
-        df_dict['down'].append(total_sys_down)
+#        df_dict['up'].append(total_sys_up)
+#        df_dict['down'].append(total_sys_down)
 
         if print_yields:
-            if name == 'BDTscore':
+            if name == 'ngood_bjetsM':
+            #if name == 'BDTscore':
             #if name == 'Zlep_cand_mass':
-                if year == '2016':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCUETP8M1_PSWeights_13TeV-powheg-pythia8',
-                         'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCUETP8M1_PSweights_13TeV-madgraph-pythia8'
-                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph-v2',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph-v2',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph-v2',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8',
-                         #'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
-                         #'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
-                         #'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-                         #'DYToLL_2J_13TeV-amcatnloFXFX-pythia8'
-                        ]
-                if year == '2017':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
-                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_13TeV-madgraph_correctedcfg',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_13TeV-madgraph_correctedcfg',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_13TeV-madgraph_correctedcfg',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_13TeV-madgraph_correctedcfg',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
                          #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
@@ -357,10 +339,10 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                          #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
                          #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
                          #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
-                        ]
+                        #]
                 if year == '2018':
                     y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
+                         #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
                          #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
                          #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
@@ -376,25 +358,25 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
                         ]
                 for idx, y in enumerate(y):
                     print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
+                    print(f'Yield {y}: {(event_yields[y]*normalizations[y])}')
 
     logging.info('Finished getting bins and event yields.')
-    for key in df_dict:
-        print(key, len(df_dict[key]))
-    
+#    for key in df_dict:
+#        print(key, len(df_dict[key]))
+
     return pd.DataFrame(df_dict)
 
 def calculate_sys(histograms, normalizations, year, filter_categories=True, print_yields=False):
     with open(f'{year}_sample_reference_ttvchanged_DY2D.json', 'r') as infile:
+    #with open(f'{year}_sample_reference_ttvchanged_jetbin.json', 'r') as infile:
         file_to_category = json.load(infile)
 
     categories = set(file_to_category.values())
-    print("CATS", categories)
     if filter_categories:
         for category in ['Data','QCD', 'Radion', 'Graviton', 'NonRes', 'NonResVBF']:
         #for category in ['QCD', 'NonResVBF', 'Radion', 'Graviton', 'NonRes', 'NonResSM']:
             categories.remove(category)
 
-    print("CATS AFTER", categories)
     df_dict = {}
     df_dict['sample_name'] = []
     df_dict['bins'] = []
@@ -404,8 +386,6 @@ def calculate_sys(histograms, normalizations, year, filter_categories=True, prin
         df_dict['var_'+category] = []
     df_dict['Other'] = []
     df_dict['var_Other'] = []
-    df_dict['up'] = []
-    df_dict['down'] = []
 
     logging.info('Getting bins and event yields.')
 
@@ -418,15 +398,12 @@ def calculate_sys(histograms, normalizations, year, filter_categories=True, prin
         # TODO make this more robust
         if "genEventSumw" == name:
             continue
-
-#        for idx, (name, roothist) in enumerate(tqdm(histograms[arb_key])):
-#            name = name.decode("utf-8")
-#            name = name.replace(";1", "")
-
+        if "BDTscore" not in name:
+            continue
         event_yields = {}
         event_variances = {}
-        event_sys_up = {}
-        event_sys_down = {}
+#        event_sys_up = {}
+#        event_sys_down = {}
 
         # TODO Only one for loop here.
         for key, value in histograms.items():
@@ -437,50 +414,37 @@ def calculate_sys(histograms, normalizations, year, filter_categories=True, prin
             if "EGamma" in key:continue
 #            print(value)
 #            print(name)
-            sys_up = np.zeros(len(value[idx][1].numpy()[0]))
-            sys_down = np.zeros(len(value[idx][1].numpy()[0]))
-            for histogram in value:
-                hist_name = histogram[0].decode("utf-8").lower()
-                if "qcd_c" in hist_name: continue
-                if "up" in hist_name:
+#            sys_up = np.zeros(len(value[idx][1].numpy()[0]))
+#            sys_down = np.zeros(len(value[idx][1].numpy()[0]))
+#            for histogram in value:
+#                hist_name = histogram[0].decode("utf-8").lower()
+#                if "qcd_c" in hist_name: continue
+#                if "up" in hist_name:
 #                    print("each hist", hist_name)
 #                    print("up hist", (np.sum(histogram[1].numpy()[0])-np.sum(value[idx][1].numpy()[0]))/ np.sum(value[idx][1].numpy()[0])  )
 #                    print("nom hist", value[idx][1].numpy()[0])
-                    sys_up = sys_up + np.sqrt((histogram[1].numpy()[0] - value[idx][1].numpy()[0])**2)
+#                    sys_up = sys_up + np.sqrt((histogram[1].numpy()[0] - value[idx][1].numpy()[0])**2)
 #                    print("sys up", sys_up)
                     #print(histogram[1].numpy()[0]-value[idx][1].numpy()[0])
-                if "down" in hist_name:
-                    sys_down = sys_down + np.sqrt((value[idx][1].numpy()[0]-histogram[1].numpy()[0])**2)
+#                if "down" in hist_name:
+#                    sys_down = sys_down + np.sqrt((value[idx][1].numpy()[0]-histogram[1].numpy()[0])**2)
 
-            event_sys_up[key] = sys_up
-            event_sys_down[key] = sys_down
+#            event_sys_up[key] = sys_up
+#            event_sys_down[key] = sys_down
 
             # Getting the idx from the top for loop, this loop goes over each sample, each key is the sample
             event_yields[key] = value[idx][1].numpy()[0]
             event_variances[key] = value[idx][1].variances
         output = normalize_event_yields(event_yields, normalizations, file_to_category)
         output_var = normalize_event_yields(event_variances, normalizations, file_to_category, var=True)
-        output_sys_up = normalize_event_yields(event_sys_up, normalizations, file_to_category)
-        output_sys_down = normalize_event_yields(event_sys_down, normalizations, file_to_category)
         output['Other'] = output['VV'] + output['SingleTop'] + output['Wjets'] + output['ttV']
         output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['Wjets'] + output_var['ttV']
 
         #output['Other'] = output['VV'] + output['SingleTop'] + output['ttV']
         #output_var['Other'] = output_var['VV'] + output_var['SingleTop'] + output_var['ttV']
 
-        output_sys_up['Other'] = output_sys_up['VV'] + output_sys_up['SingleTop'] + output_sys_up['ttV']
-        output_sys_down['Other'] = output_sys_down['VV'] + output_sys_down['SingleTop'] + output_sys_down['ttV']
 
         total_var = output_var['Other'] + output_var['SMHiggs'] + output_var['DY'] + output_var['TT']
-        total_sys_up = output_sys_up['Other'] + output_sys_up['SMHiggs'] + output_sys_up['DY'] + output_sys_up['TT']
-        total_sys_down = output_sys_down['Other'] + output_sys_down['SMHiggs'] + output_sys_down['DY'] + output_sys_down['TT']
-        if print_yields:
-            if name == 'BDTscore':
-                print("yooo cHHH1", output['cHHH1'].sum())
-
-        if year == '2016':
-            output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
-
 
         for category in output:
             df_dict[category].append(output[category])
@@ -488,14 +452,11 @@ def calculate_sys(histograms, normalizations, year, filter_categories=True, prin
         df_dict['var'].append(total_var)
         df_dict['bins'].append(roothist.numpy()[1])
         df_dict['sample_name'].append(name)
-        df_dict['up'].append(total_sys_up)
-        df_dict['down'].append(total_sys_down)
 
 
     logging.info('Finished getting bins and event yields.')
 #    for key in df_dict:
 #        print(key, len(df_dict[key]))
-    
     return pd.DataFrame(df_dict)
 
 def btag_ratio(all_event_yields, year, filepath, overwrite):
@@ -711,12 +672,13 @@ def scale_cregions (df, qcd_norm, dy_norm, tt_norm):
     df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
     df = df.set_index('sample_name')
     df.loc[residuals.index.str.replace('_QCD_C', ''), 'QCD_estimate'] = residuals.values
+    # used to drop Zjet_cand_mass_QCD_C histogram
     df = df.drop(c_samples_to_drop).reset_index()
     return df
 
 def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields=False, datacard=False, bdtscores_to_csv=False):
     fig, axarr = plt.subplots(2, dpi=150, figsize=(6, 5), sharex=True,
-                              gridspec_kw={'hspace': 0.05, 'height_ratios': (0.8,0.2)},
+                              gridspec_kw={'hspace': 0.085, 'height_ratios': (0.8,0.2)},
                               constrained_layout=False)
 
     upper = axarr[0]
@@ -731,6 +693,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     event_yields['DY'] *= bkgd_norm[1]
     event_yields['TT'] *= bkgd_norm[2]
 
+    print('SYSUPPPP', event_yields['sysup'])
     # For comparing to data cards
     if event_yields['sample_name']=="BDTscore":
 #    if event_yields['sample_name']=="Zlep_cand_mass":
@@ -757,8 +720,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     #Signal = event_yields['VBF1'] #* 0.031047 * 0.004
 
     blinding_bins = round(len(bins) * 0.8)
-    print('before', len(bins))
-    print('after', blinding_bins)
+#    print('before', len(bins))
+#    print('after', blinding_bins)
 
     if event_yields['sample_name']=="BDTscore":
         if not datacard:
@@ -769,10 +732,15 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     # The first bin has a value of 0 and will give a warning.
     ratio = Data/MC
-    ratio_sys_up = event_yields['up']/MC
-    ratio_sys_down = event_yields['down']/MC
-    ratio_sys_up[blinding_bins:]=0
-    ratio_sys_down[blinding_bins:]=0
+#    print("MC", MC)
+    ratio_sys_up = (event_yields['sysup'] * ratio)/MC
+    #print("UP SYS", event_yields['up'])
+    #print("DOWN SYS", event_yields['down'])
+    ratio_sys_down = (event_yields['sysup'] * ratio)/MC
+#    ratio_sys_up[blinding_bins:]=0
+#    ratio_sys_down[blinding_bins:]=0
+#    print("up yield", event_yields['up'])
+#    print("down yield", event_yields['down'])
 #    print("up", ratio_sys_up)
 #    print("down", ratio_sys_down)
 #    print("up ratio", ratio+ratio_sys_up)
@@ -786,14 +754,21 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
     if event_yields['sample_name']=="BDTscore":
         if bdtscores_to_csv:
-            asdf = np.column_stack((binc,Signal,MC))
+            asdf = np.column_stack((binc,Data,MC))
             np.savetxt(f'BDTscores_{year}{channel}.csv', asdf, delimiter=',', fmt='%f')
 
-    all_weights = np.vstack([event_yields['SMHiggs'],
-                             event_yields['Other'],
-                             event_yields['QCD_estimate'],
-                             event_yields['DY'],
-                             event_yields['TT']]).transpose()
+    if event_yields['sample_name']=="Zlep_cand_mass_QCD_B" or event_yields['sample_name']=="Zlep_cand_mass_QCD_D" or event_yields['sample_name']=="Zlep_cand_mass_QCD_C":
+        all_weights = np.vstack([event_yields['SMHiggs'],
+                                 event_yields['Other'],
+                                 event_yields['DY'],
+                                 event_yields['TT']]).transpose()
+
+    else:
+        all_weights = np.vstack([event_yields['SMHiggs'],
+                                 event_yields['Other'],
+                                 event_yields['QCD_estimate'],
+                                 event_yields['DY'],
+                                 event_yields['TT']]).transpose()
     all_x = np.vstack([binc] * all_weights.shape[1]).transpose()
 
     COLORMAP = {'SMhiggs': COLORS[4],
@@ -803,7 +778,10 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                 'QCD': COLORS[2],
                 'QCD_estimate':COLORS[5]}
 
-    labels = ['SMhiggs', 'Other', 'QCD', 'DY', 'TT']
+    if event_yields['sample_name']=="Zlep_cand_mass_QCD_B" or event_yields['sample_name']=="Zlep_cand_mass_QCD_D" or event_yields['sample_name']=="Zlep_cand_mass_QCD_C":
+        labels = ['SMhiggs', 'Other', 'DY', 'TT']
+    else:
+        labels = ['SMhiggs', 'Other', 'QCD', 'DY', 'TT']
     plotting_colors = [COLORMAP[s] for s in labels]
 
     upper.hist(x=all_x, bins=bins, weights=all_weights,
@@ -841,7 +819,6 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     lower_label = min_x - x_range*0.05
     upper_label = max_x - x_range*0.35
 
-
     #X and Y labels (Do not use the central matplotlob default)
     upper.set_ylabel("Events/bin", y=1, ha='right')
     upper.tick_params(axis='both', which='major', direction='in',
@@ -851,7 +828,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                       bottom=True, right=False, top=False, left=True,
                       color='black')
     lower.set_xlabel(name, x=1, ha='right')
-    lower.set_ylabel("Data/MC", fontsize = 10)
+    lower.set_ylabel("Data/MC")
     lower.set_ylim(0.5, 1.5)
     yerr = np.sqrt(Data) / MC
 
@@ -866,7 +843,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
 
     lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
-    #lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='slategrey')
+    lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='lightsteelblue')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
     lower.yaxis.set_minor_locator(AutoMinorLocator())
@@ -882,12 +859,12 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
 
     cms = upper.text(
-        lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
+        lower_label, max_y*1.5, u"CMS $\it{Preliminary}$",
         fontsize=16, fontweight='bold',
     )
 
     upper.text(
-        upper_label, max_y*1.08, f'{LUMI[year]:.1f} fb$^{{-1}}$ (13 TeV)',
+        upper_label, max_y*1.5, f'{LUMI[year]:.1f} fb$^{{-1}}$ (13 TeV)',
         fontsize=14,
     )
 
@@ -897,13 +874,15 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         text_channel = r'$\mu \mu$ '+u'channel'
 
     upper.text(
-        lower_label*0.95, max_y*0.25, text_channel,
-        fontsize=14,
+        0.02, 0.98, text_channel,
+        ha = 'left', va = 'top',
+        fontsize=14, transform = upper.transAxes
     )
 
     upper.text(
-        lower_label*0.95,max_y*0.1,r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
-        fontsize=8,
+        0.02, 0.915, r'$\chi^{2}$/ndf = '+f'{chi2:.2f}/{nBins} = {chi2/nBins:.2f}',
+        ha = 'left', va = 'top',
+        fontsize=8, transform = upper.transAxes
     )
 
     upper.legend(bbox_to_anchor=(1, 1), loc=1, fontsize=9, ncol=2, frameon=False)
@@ -1006,7 +985,7 @@ def main():
                         default='/eos/user/v/vinguyen/coffeafiles/2016-fixed-rename/',
                         help='Directory containing histogram files.')
     parser.add_argument('--xfile', type=str, required=False,
-                        default='/afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2016.yaml',
+                        #default='/afs/cern.ch/work/v/vinguyen/private/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2016.yaml',
                         help='File containing cross sections.')
     parser.add_argument('--year', type=str, required=False,
                         default='2016',
@@ -1037,6 +1016,8 @@ def main():
                         help='Store BDT scores to csv file for binning optimization.')
     parser.add_argument('--datacard', action='store_true', required=False,
                         help='Plot full BDT score discribution, save QCD C region to root file.')
+    parser.add_argument('--systematics', action='store_true', required=False,
+                        help='Plot systematics')
     args = parser.parse_args()
 
 
@@ -1056,60 +1037,104 @@ def main():
     logging.info(f'Cross-section file: {args.xfile}')
     logging.info(f'Year: {args.year}')
 
-    xsections = get_xsections(args.xfile)
+    if args.year == "2016":
+        xfile = '/afs/cern.ch/work/v/vinguyen/makentuples/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2016.yaml'
+    if args.year == "2017":
+        xfile = '/afs/cern.ch/work/v/vinguyen/makentuples/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2017.yaml'
+    if args.year == "2018":
+        xfile = '/afs/cern.ch/work/v/vinguyen/makentuples/CMSSW_10_6_4/src/PhysicsTools/MonoZ/data/xsections_2018.yaml'
+
+    xsections = get_xsections(xfile)
     sample_paths, hist_paths = cleanup(args.sample_dir, args.another_sample_dir, args.hist_dir, xsections)
     histograms = get_histograms(hist_paths, args.year, args.channel)
     normalizations = get_normalizations(sample_paths, xsections, list(histograms.keys()), args.year)
-#    print(sample_paths)
+#    print("[sup]", hist_paths)
+    #print(normalizations)
 
     df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories, print_yields=args.yields, preselection=args.preselection)
-#    df_sys = calculate_sys(histograms, normalizations, args.year, filter_categories=True, print_yields=args.yields)
 
-#    df_sys['Sys'] = df_sys[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
-#    df_sys.to_csv('isa.csv', index=False)
-##    df_nom = pd.DataFrame({'nom': [df_sys['Sys'].iloc[0]] * len(df_sys['Sys'])})
-#    df_nom = df_sys.iloc[0][['DY','TT','SMHiggs','SingleTop','ttV']].to_frame().sum(axis=1).values
-#    #df_sys['err'] = df_sys['Sys'] - df_nom['nom']
-#    #print("histogram names", df_sys['sample_name'])
-#    #print("df sys sum", df_sys['Sys'].shape)
-#    #print("df sys nom", nom)
-#    #print("df sys err", df_sys['err'])
-#    #testdfd = {col: [np.fromstring(df_sys[col].iloc[i][1:-1], sep='\n') for i, _ in enumerate(df_sys['Sys'])] for col in df_sys if col != 'sample_name'}
-#    #test = pd.DataFrame(testdfd)
-#    #test['sample_name'] = df_sys['sample_name']
-#    dumb = {'dumb': [df_sys['Sys'].iloc[0]] * len(df_sys['Sys'])}
-#    dfdumb = pd.DataFrame(dumb)
-#    df_sys['new'] = np.abs((df_sys['Sys'] - dfdumb['dumb'])/ dfdumb['dumb'])
-#    minbin = []
-#    maxbin = []
-#
-#    for a in df_sys[['new']].values:
-#        #print(a)
-#        minbin.append(np.round(np.min(a[0]),3))
-#        maxbin.append(np.round(np.max(a[0]),3))
-#        #print(np.min(a[0]))
-#        #print(np.max(a[0]))
-#
-#    df_sys['min'] = minbin
-#    df_sys['max'] = maxbin
-#
-#    dropc = df_sys[df_sys["sample_name"].str.contains("QCD_C") == False]
-#
-#    dftable = (dropc.copy()
-#              .reset_index()
-#              .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
-#
-#    for_table = dftable[['systematic_name', 'min', 'max']].iloc[1::].to_latex(index=False)
-#
-#    with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
-#        f.write(for_table)
-#
-#    for_plot = (dropc.copy()
-#                .reset_index()
-#                .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
-#                        .str.replace('Up', '').str.replace('Down', '')))
-#
-#    plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicstest{args.channel}{args.year}')
+    if args.systematics:
+        # For systematics
+        df_sys = calculate_sys(histograms, normalizations, args.year, filter_categories=True, print_yields=args.yields)
+        print(df_sys.shape)
+        df_sys['Sys'] = df_sys[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
+#        df_sys.to_csv(f'isa{args.year}{args.channel}.csv', index=False)
+#    df_nom = pd.DataFrame({'nom': [df_sys['Sys'].iloc[0]] * len(df_sys['Sys'])})
+        df_nom = df_sys.iloc[0][['DY','TT','SMHiggs','SingleTop','ttV']].to_frame().sum(axis=1).values
+        #df_sys['err'] = df_sys['Sys'] - df_nom['nom']
+        #print("histogram names", df_sys['sample_name'])
+        #print("df sys sum", df_sys['Sys'].shape)
+        #print("df sys nom", nom)
+        #print("df sys err", df_sys['err'])
+        #testdfd = {col: [np.fromstring(df_sys[col].iloc[i][1:-1], sep='\n') for i, _ in enumerate(df_sys['Sys'])] for col in df_sys if col != 'sample_name'}
+        #test = pd.DataFrame(testdfd)
+        #test['sample_name'] = df_sys['sample_name']
+        # subtracting the nominal histogram
+        dumb = {'dumb': [df_sys['Sys'].iloc[0]] * len(df_sys['Sys'])}
+        dfdumb = pd.DataFrame(dumb)
+        #df_sys['new'] = np.abs((df_sys['Sys'] - dfdumb['dumb'])/ dfdumb['dumb'])
+        df_sys['new'] = np.abs((df_sys['Sys'] - dfdumb['dumb']))
+        minbin = []
+        maxbin = []
+
+        for a in df_sys[['new']].values:
+            #print(a)
+            minbin.append(np.round(np.min(a[0]),3))
+            maxbin.append(np.round(np.max(a[0]),3))
+            #print(np.min(a[0]))
+            #print(np.max(a[0]))
+
+        df_sys['min'] = minbin
+        df_sys['max'] = maxbin
+
+        dropc = df_sys[df_sys["sample_name"].str.contains("QCD_C") == False]
+
+#        dftable = (dropc.copy()
+#                  .reset_index()
+#                  .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
+
+#        for_table = dftable[['systematic_name', 'min', 'max']].iloc[1::].to_latex(index=False)
+
+#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
+#            f.write(for_table)
+
+        for_plot = (dropc.copy()
+                    .reset_index()
+                    .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
+                            .str.replace('Up', '').str.replace('Down', '')))
+#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
+#            f.write(for_table)
+
+#        for_plot = (dropc.copy()
+#                    .reset_index()
+#                    .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
+#                            .str.replace('Up', '').str.replace('Down', '')))
+#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
+#            f.write(for_table)
+
+#        for_plot = (dropc.copy()
+#                    .reset_index()
+#                    .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
+#                            .str.replace('Up', '').str.replace('Down', '')))
+#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
+#            f.write(for_table)
+
+#        for_plot = (dropc.copy()
+#                    .reset_index()
+#                    .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
+#                            .str.replace('Up', '').str.replace('Down', '')))
+
+#        plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicsplots{args.channel}{args.year}')
+        print(dropc)
+        dfup = dropc[dropc["sample_name"].str.contains("Up") == True]
+        print(dfup[dfup["sample_name"].str.contains("met") == False])
+        #syst_array = np.array([list(a) for a in dfup[dfup["sample_name"].str.contains("met") == False]["new"].values], dtype=np.float64)
+        syst_array = np.stack(dfup[dfup["sample_name"].str.contains("met") == False]["new"].values)
+        syst_var = np.sqrt(np.sum(np.power(syst_array,2), axis=0))
+        syst_var[syst_var>500]=0
+        #syst_up = np.abs(syst_var/dropc['Sys'][0])
+        syst_up = np.abs(syst_var)
+        df["sysup"] = [syst_up,syst_up]
 
     if args.nonorm:
         df['QCD_estimate'] = df.apply(lambda x: np.zeros(shape=x['Data'].shape[0]), axis=1)
@@ -1122,40 +1147,19 @@ def main():
         if args.finalselection:
             #for tt bar reweight and QCD positive bins only
             if args.channel == 'muon':
-                if args.year == '2017': bkgd_norm = (1.81, 2.11, 1.3)
+                if args.year == '2018': bkgd_norm = (1.68, 1.86, 0.855)
+                if args.year == '2017': bkgd_norm = (1.77, 2.06, 1.3)
+                if args.year == '2016': bkgd_norm = (1.7, 1.28, 1.03)
 #                if args.year == '2016': bkgd_norm = (1.44, 1.34, 0.989)
 #                if args.year == '2017': bkgd_norm = (1.50, 1.88, 1.26)
 #                if args.year == '2018': bkgd_norm = (1.51, 1.68, 1.41)
             if args.channel == 'electron':
-                if args.year == '2016': bkgd_norm = (0.997, 1.43, 1.01)
-                if args.year == '2017': bkgd_norm = (1.35, 1.81, 1.17)
-                if args.year == '2018': bkgd_norm = (1.10, 1.63, 1.12)
-            #if args.channel == 'muon':
-            #    if args.year == '2016': bkgd_norm = (1.47, 1.32, 1.00)
-            #    if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.21)
-            #    if args.year == '2018': bkgd_norm = (1.53, 1.64, 1.38)
-            #if args.channel == 'electron':
-            #    if args.year == '2016': bkgd_norm = (0.996, 1.41, 1.03)
-            #    if args.year == '2017': bkgd_norm = (1.29, 1.74, 1.11)
-            #    if args.year == '2018': bkgd_norm = (1.08, 1.58, 1.09)
-            #for tt bar reweight
-            #if args.channel == 'muon':
-            #    if args.year == '2016': bkgd_norm = (1.47, 1.32, 1.01)
-            #    if args.year == '2017': bkgd_norm = (1.52, 1.8, 1.24)
-            #    if args.year == '2018': bkgd_norm = (1.53, 1.64, 1.41)
-            #if args.channel == 'electron':
-            #    if args.year == '2016': bkgd_norm = (0.97, 1.41, 1.05)
-            #    if args.year == '2017': bkgd_norm = (1.26, 1.74, 1.15)
-            #    if args.year == '2018': bkgd_norm = (1.08, 1.58, 1.09)
-            #before ttbar reweight
-            #if args.channel == 'muon':
-            #    if args.year == '2016': bkgd_norm = (1.46, 1.33, 0.974)
-            #    if args.year == '2017': bkgd_norm = (1.52, 1.81, 1.22)
-            #    if args.year == '2018': bkgd_norm = (1.53, 1.65, 1.12)
-            #if args.channel == 'electron':
-            #    if args.year == '2016': bkgd_norm = (1.01, 1.42, 1.01)
-            #    if args.year == '2017': bkgd_norm = (1.25, 1.74, 1.14)
-            #    if args.year == '2018': bkgd_norm = (1.08, 1.59, 1.04)
+                if args.year == '2016': bkgd_norm = (1.12, 1.25, 0.98)
+                if args.year == '2017': bkgd_norm = (1.13, 1.6, 1.22)
+                if args.year == '2018': bkgd_norm = (1.16, 1.7, 0.953)
+#                if args.year == '2016': bkgd_norm = (0.997, 1.43, 1.01)
+#                if args.year == '2017': bkgd_norm = (1.35, 1.81, 1.17)
+#                if args.year == '2018': bkgd_norm = (1.10, 1.63, 1.12)
         else:
             bkgd_norm = estimate_background(df)
 
