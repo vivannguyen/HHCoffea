@@ -6,15 +6,28 @@ channels:
 dependencies:
   - python == 3.8.10
   - pip
-  - ipykernel
-  - joblib
-  - jupyterlab
-  - matplotlib
-  - numpy
-  - pandas
-  - root
-  - scipy
+  - awkward == 1.7.0
+  - ipykernel == 6.6.1
+  - joblib == 1.1.0
+  - jupyterlab == 3.2.5
+  - matplotlib == 3.5.1
+  - numba == 0.53.1
+  - numpy == 1.22.0
+  - pandas == 1.5.3
+  - root == 6.24.2
+  - scikit-hep == 4.4.0
+  - scipy == 1.7.3
   - seaborn
   - uproot3 == 3.14.4
+  - uproot == 4.2.0
   - pip:
-    - pyyaml
+    - boost-histogram == 1.3.1
+    - cramjam == 2.5.0
+    - fastparquet == 0.8.0
+    - fsspec == 2022.2.0
+    - pip == 22.0.3
+    - pyarrow == 7.0.0
+    - pyyaml == 6.0
+    - scikit-learn == 1.0.2
+    - threadpoolctl == 3.1.0
+    - xgboost == 1.5.1
