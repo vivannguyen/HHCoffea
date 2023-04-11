@@ -30,6 +30,8 @@ except:
     import uproot_methods
 logging.getLogger().setLevel(logging.INFO)
 
+#COLORS=('#D15536','#2FDBCA','#F59D2D','#53DB57','#5CA4F5','#FF47EB')
+#COLORS=('#D13222','#2FDBCA','#F59D2D','#A9F274','#5CA4F5','#FF47EB')
 COLORS=('#E33719','#2FDBCA','#F59D2D','#A9F274','#5CA4F5','#FF47EB')
 
 LUMI = {'2016':36.3, '2017':41.5, '2018': 59.8}
@@ -132,7 +134,7 @@ def get_normalizations(sample_paths, xsections, histogram_names, year):
         if 'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8' in fn : continue
         if os.path.isfile(fn):
             _proc = os.path.basename(fn).replace(".root","")
-            _file = uproot.open(fn)
+            #_file = uproot.open(fn)
             if ("DoubleEG") in fn:
                 _scale = 1
             elif ("DoubleMuon") in fn:
@@ -144,6 +146,7 @@ def get_normalizations(sample_paths, xsections, histogram_names, year):
             elif ("EGamma") in fn:
                 _scale = 1
             else:
+                _file = uproot.open(fn)
                 _scale  = xs_scale(xsections, year, ufile=_file, proc=_proc)
 #            if 'GluGluToHHTo2B2ZTo2L2J_node_cHHH1' in fn:
 #                print("hello", _scale)
@@ -330,15 +333,28 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 
     return pd.DataFrame(df_dict)
 
-def aggregate_systematics(grp, threshold=500, drop_mets=True):
+def aggregate_systematics(grp, threshold=np.inf, drop_mets=True):
     if drop_mets:
         to_remove = (grp['sample_name'].str.contains('sys')
-                     & grp['sample_name'].str.split('sys').str[-1].str.contains('met'))
+                     & grp['sample_name'].str.split('sys').str[-1].str.contains('met')
+                     & grp['sample_name'].str.split('sys').str[-1].str.contains('QCDScale'))
+                    # & grp['sample_name'].str.split('sys').str[-1].str.contains('cferr'))
         grp = grp[~to_remove]
 
     nominal_arr = np.stack(grp[grp.sys_type == '']['Sys'].values)
     up_nom_residual = (nominal_arr - np.stack(grp[grp.sys_type == 'up']['Sys'].values))
     down_nom_residual = (nominal_arr - np.stack(grp[grp.sys_type == 'down']['Sys'].values))
+
+    up_nom_relative_err = np.abs(up_nom_residual) / nominal_arr
+    down_nom_relative_err = np.abs(down_nom_residual) / nominal_arr
+
+    grp['min'] = np.nan
+    grp['max'] = np.nan
+    # Get the minimums and maximums by excluding nans.
+    grp.loc[grp.sys_type == 'up', 'min'] = np.nanmin(up_nom_relative_err, axis=1)
+    grp.loc[grp.sys_type == 'up', 'max'] = np.nanmax(up_nom_relative_err, axis=1)
+    grp.loc[grp.sys_type == 'down', 'min'] = np.nanmin(down_nom_relative_err, axis=1)
+    grp.loc[grp.sys_type == 'down', 'max'] = np.nanmax(down_nom_relative_err, axis=1)
 
     # Add residuals in quadrature across rows for each bin.
     up_nom_quad = np.sqrt(np.sum(up_nom_residual**2, axis=0))
@@ -351,20 +367,19 @@ def aggregate_systematics(grp, threshold=500, drop_mets=True):
     symmetrize_up_down[symmetrize_up_down >= threshold] = 0
 
     # Retain only the row containing the nominal values.
-    grp = grp[grp.sys_type == '']
+    #grp = grp[grp.sys_type == '']
 
-    grp['up'] = [up_nom_quad]
-    grp['down'] = [down_nom_quad]
-    grp['symmetrize'] = [symmetrize_up_down]
-    grp['min'] = np.min([up_nom_quad, down_nom_quad])
-    grp['max'] = np.max([up_nom_quad, down_nom_quad])
-
+    grp['up'] = [up_nom_quad] * len(grp)
+    grp['down'] = [down_nom_quad] * len(grp)
+    grp['symmetrize'] = [symmetrize_up_down] * len(grp)
+    grp['min'] = np.round(grp['min'], 3)
+    grp['max'] = np.round(grp['max'], 3)
     return grp
 
-def systematics_func(df, threshold=500, drop_mets=True):
+def systematics_func(df, year, channel, threshold=np.inf, drop_mets=True):
     if np.count_nonzero(df['sample_name'].str.contains('sys').values) == 0:
         logging.warning('No samples with \'sys\' in name. Systematics cannot be performed.')
-        return
+        return df
 
     df['Sys'] = df[['DY','TT','SMHiggs','SingleTop','ttV']].sum(axis=1)
 #        df.to_csv(f'isa{args.year}{args.channel}.csv', index=False)
@@ -373,25 +388,31 @@ def systematics_func(df, threshold=500, drop_mets=True):
     df.loc[df.sample_name.str.contains('Up'), 'sys_type'] = 'up'
     df.loc[df.sample_name.str.contains('Down'), 'sys_type'] = 'down'
     df = (df.groupby('nominal_name')
-          .apply(aggregate_systematics, drop_mets=True, threshold=500)
-          .reset_index(drop=True)
-          .query('~sample_name.str.contains("QCD_C")'))
+          .apply(aggregate_systematics, drop_mets=True, threshold=np.inf)
+          .reset_index(drop=True))
+          #.query('~sample_name.str.contains("QCD_C")'))
 
-#        dftable = (df.copy()
-#                  .reset_index()
-#                  .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
+    bdtscore_subset = df[df['sample_name'].str.contains('BDTscore_sys')].copy()
 
-#        for_table = dftable[['systematic_name', 'min', 'max']].iloc[1::].to_latex(index=False)
+    dftable = (bdtscore_subset
+              .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
 
-#        with open(f'latextable{args.year}{args.channel}.txt', 'w') as f:
-#            f.write(for_table)
+    for_table = dftable[['systematic_name', 'min', 'max']].to_latex(index=False)
 
-    for_plot = (df.copy()
+    with open(f'latextable{year}{channel}.txt', 'w') as f:
+        f.write(for_table)
+
+    print(list(df))
+
+    for_plot = (bdtscore_subset[bdtscore_subset['sample_name'].str.contains('QCD_C')]
                 .reset_index()
                 .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
                         .str.replace('Up', '').str.replace('Down', '')))
 
-#        plot_systematics(for_plot, args.year, args.channel, outdir= f'systematicsplots{args.channel}{args.year}')
+    #print(for_plot['sample_name'].to_string(index=False))
+    plot_systematics(for_plot, year, channel, outdir= f'systematicsplots{channel}{year}')
+
+    return df[df['sys_type'] == '']
 
 def btag_ratio(all_event_yields, year, filepath, overwrite):
     names_for_njets = np.array(['ngood_jets', 'ngood_jets_btagSF'])
@@ -659,7 +680,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     if event_yields['sample_name']=="BDTscore":
         if not datacard:
             # slice depends on how many total bins in the BDT score distribution
-            Data[blinding_bins:] = 0
+            Data[blinding_bins:] = np.inf
 
     MC += Other
 
@@ -667,9 +688,9 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
     ratio = Data/MC
 #    print("MC", MC)
     if 'up' in event_yields:
-        ratio_sys_up = (event_yields['up'] * ratio)/MC
+        ratio_sys_up = (event_yields['symmetrize'] * ratio)/MC
     if 'down' in event_yields:
-        ratio_sys_down = (event_yields['down'] * ratio)/MC
+        ratio_sys_down = (event_yields['symmetrize'] * ratio)/MC
 #    ratio_sys_up[blinding_bins:]=0
 #    ratio_sys_down[blinding_bins:]=0
     binc = bins[:-1] + np.diff(bins) * 0.5
@@ -756,6 +777,7 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
                       color='black')
     lower.set_xlabel(name, x=1, ha='right')
     lower.set_ylabel("Data/MC")
+    #lower.set_ylim(-0.5, 2.5)
     lower.set_ylim(0.5, 1.5)
     yerr = np.sqrt(Data) / MC
 
@@ -768,10 +790,9 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
             chi2 = chi2 + ((r-1)*(r-1))/(yerr[indx]*yerr[indx])
             nBins = nBins + 1
 
-
-    lower.errorbar(binc, ratio, yerr = yerr, marker = '.', color = 'black', linestyle ='none')
+    lower.errorbar(binc, ratio, yerr = np.abs(yerr), marker = '.', color = 'black', linestyle ='none')
     if 'up' in event_yields:
-        lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='lightsteelblue')
+        lower.fill_between(binc, 1+ratio_sys_up, 1-ratio_sys_down, step='mid', alpha=0.5, color='lightsteelblue', label='Sys Unc')
     lower.plot([min_x, max_x],[1,1],linestyle=':', color = 'black')
     lower.xaxis.set_minor_locator(AutoMinorLocator())
     lower.yaxis.set_minor_locator(AutoMinorLocator())
@@ -787,7 +808,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
 
     cms = upper.text(
-        lower_label, max_y*1.5, u"CMS $\it{Preliminary}$",
+        #lower_label, max_y*1.5, u"CMS $\it{Preliminary}$",
+        lower_label, max_y*1.5, u"CMS $\it{Work\,in\,progress}$",
         fontsize=16, fontweight='bold',
     )
 
@@ -813,7 +835,20 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
         fontsize=8, transform = upper.transAxes
     )
 
-    upper.legend(bbox_to_anchor=(1, 1), loc=1, fontsize=9, ncol=2, frameon=False)
+    # handles are the markers, labels are the label associated with the marker
+    handles0, labels0 = upper.get_legend_handles_labels()
+    handles1, labels1 = lower.get_legend_handles_labels()
+
+    # Add blank patch to make things look better.
+#    import matplotlib.patches as mpatches
+#    blank_patch = mpatches.Patch(color='white', label='')
+#    handles0 = handles0[:4] + [blank_patch] + handles0[4:]
+#    labels0 = labels0[:4] + [''] + labels0[4:]
+
+    handles0 += handles1
+    labels0 += labels1
+
+    upper.legend(handles=handles0, labels=labels0, bbox_to_anchor=(1, 1), loc=1, fontsize=9, ncol=2, frameon=False)
     fig.savefig(os.path.join(outdir, f'{name}_{year}.png'), bbox_inches='tight')
     plt.close()
     #plt.show()
@@ -871,7 +906,8 @@ def plot_systematics(for_plot, year, channel, outdir=''):
         upper_label = max_x - x_range*0.35
 
         cms = axes[0].text(
-            lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
+            #lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
+            lower_label, max_y*1.08, u"CMS $\it{Work in progress}$",
             fontsize=16, fontweight='bold',
         )
 
@@ -980,9 +1016,9 @@ def main():
     #print(normalizations)
 
     df = get_bins_and_event_yields(histograms, normalizations, args.year, filter_categories=args.filter_categories, print_yields=args.yields, preselection=args.preselection)
-
+    print(list(df))
     if args.systematics:
-        systematics_func(df)
+        df = systematics_func(df, args.year, args.channel)
 
     # Remove samples used for systematics.
     df = df[~df['sample_name'].str.contains('sys')]
@@ -1001,16 +1037,10 @@ def main():
                 if args.year == '2018': bkgd_norm = (1.68, 1.86, 0.855)
                 if args.year == '2017': bkgd_norm = (1.77, 2.06, 1.3)
                 if args.year == '2016': bkgd_norm = (1.7, 1.28, 1.03)
-#                if args.year == '2016': bkgd_norm = (1.44, 1.34, 0.989)
-#                if args.year == '2017': bkgd_norm = (1.50, 1.88, 1.26)
-#                if args.year == '2018': bkgd_norm = (1.51, 1.68, 1.41)
             if args.channel == 'electron':
                 if args.year == '2016': bkgd_norm = (1.12, 1.25, 0.98)
                 if args.year == '2017': bkgd_norm = (1.13, 1.6, 1.22)
                 if args.year == '2018': bkgd_norm = (1.16, 1.7, 0.953)
-#                if args.year == '2016': bkgd_norm = (0.997, 1.43, 1.01)
-#                if args.year == '2017': bkgd_norm = (1.35, 1.81, 1.17)
-#                if args.year == '2018': bkgd_norm = (1.10, 1.63, 1.12)
         else:
             bkgd_norm = estimate_background(df)
 
