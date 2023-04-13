@@ -392,9 +392,10 @@ def systematics_func(df, year, channel, threshold=np.inf, drop_mets=True):
           .reset_index(drop=True))
           #.query('~sample_name.str.contains("QCD_C")'))
 
-    bdtscore_subset = df[df['sample_name'].str.contains('BDTscore_sys')].copy()
+    sample_names = df['sample_name'].str
 
-    dftable = (bdtscore_subset
+    bdtscore_sys_subset = df[sample_names.contains('BDTscore_sys')]
+    dftable = (bdtscore_sys_subset
               .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')))
 
     for_table = dftable[['systematic_name', 'min', 'max']].to_latex(index=False)
@@ -402,15 +403,17 @@ def systematics_func(df, year, channel, threshold=np.inf, drop_mets=True):
     with open(f'latextable{year}{channel}.txt', 'w') as f:
         f.write(for_table)
 
-    print(list(df))
-
-    for_plot = (bdtscore_subset[bdtscore_subset['sample_name'].str.contains('QCD_C')]
+    bdtscore_subset_no_qcd_c = df[(sample_names.contains('BDTscore')) & ~(sample_names.contains('QCD_C'))]
+    for_plot = (bdtscore_subset_no_qcd_c
                 .reset_index()
                 .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
                         .str.replace('Up', '').str.replace('Down', '')))
 
+    print("\n\n\n aksdjflkasdjf", for_plot)
+
     #print(for_plot['sample_name'].to_string(index=False))
     plot_systematics(for_plot, year, channel, outdir= f'systematicsplots{channel}{year}')
+    print("HEREEEEE")
 
     return df[df['sys_type'] == '']
 
@@ -855,11 +858,11 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
 
 def plot_systematics(for_plot, year, channel, outdir=''):
     log=True
-
     for idx in range(1, len(for_plot), 2):
         fig, axes = plt.subplots(nrows=2, dpi=150, figsize=(5, 5), gridspec_kw={'height_ratios': [5, 1]})
         binc = (for_plot.iloc[0].bins[:-1] + for_plot.iloc[0].bins[1:]) / 2
-
+        print("index", idx, for_plot.iloc[idx]['sample_name'])
+        print("index1", idx+1, for_plot.iloc[idx+1]['sample_name'])
         axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[0].Sys, log=log, label='BDT score',
                  histtype='step', color='black')
         axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[idx].Sys, log=log, label='Up',
@@ -907,7 +910,7 @@ def plot_systematics(for_plot, year, channel, outdir=''):
 
         cms = axes[0].text(
             #lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
-            lower_label, max_y*1.08, u"CMS $\it{Work in progress}$",
+            lower_label, max_y*1.08, u"CMS $\it{Work\,in\,progress}$",
             fontsize=16, fontweight='bold',
         )
 
@@ -932,6 +935,7 @@ def plot_systematics(for_plot, year, channel, outdir=''):
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
         #os.mkdir(outdir)
+        print("now hereeeeeee here her her")
         fig.savefig(os.path.join(outdir, f'{for_plot.iloc[idx].systematic_name}_{year}.png'), bbox_inches='tight')
         plt.close()
 
