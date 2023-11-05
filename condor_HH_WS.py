@@ -3,11 +3,13 @@ import re
 
 from coffea.processor import run_uproot_job, futures_executor
 
-#from python.HH_Producer import *
-#from python.SumWeights import *
+# for local
+from python.HH_Producer import *
+from python.SumWeights import *
 
-from HH_Producer import *
-from SumWeights import *
+# for condor
+#from HH_Producer import *
+#from SumWeights import *
 
 import uproot3 as uproot
 import argparse
@@ -18,12 +20,13 @@ parser = argparse.ArgumentParser("")
 parser.add_argument('--isMC', type=int, default=1, help="")
 parser.add_argument('--jobNum', type=int, default=1, help="")
 parser.add_argument('--era', type=str, default="2018", help="")
-parser.add_argument('--doSyst', type=int, default=0, help="")
+parser.add_argument('--doSyst', type=int, default=1, help="")
 parser.add_argument('--infile', type=str, default=None, help="")
 parser.add_argument('--dataset', type=str, default="X", help="")
 parser.add_argument('--nevt', type=str, default=-1, help="")
 parser.add_argument('--njetw', type=str, default=None, help="")
 parser.add_argument('--ttreweight', type=int, default=None, help="")
+parser.add_argument('--EFTbenchmark', type=str, default=None, help="")
 
 options = parser.parse_args()
 
@@ -66,7 +69,7 @@ if float(options.nevt) > 0:
     pre_selection += ' && (Entry$ < {})'.format(options.nevt)
 
 #pro_syst = ["ElectronEn", "MuonEn"] #, "", "jer"]
-pro_syst = ["ElectronEn", "MuonEn", "jer","jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]
+pro_syst = ["ElectronEn", "MuonEn", "jer","jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]#, "met_ptUnclustEn", "met_phiUnclustEn"]
 #pro_syst = []
 if options.era == '2016':
     pro_syst.extend(["jesAbsolute_2016","jesBBEC1_2016","jesEC2_2016","jesHF_2016","jesRelativeSample_2016"])
@@ -99,13 +102,13 @@ if options.era == '2018':
 
 modules_era = []
 
-modules_era.append(HH_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset, njetw=options.njetw, ttreweight=options.ttreweight))#,
+modules_era.append(HH_NTuple(isMC=options.isMC, era=int(options.era), do_syst=1, syst_var='', sample=options.dataset, njetw=options.njetw, ttreweight=options.ttreweight))#, eftbenchmark=options.EFTbenchmark))#,
 #                         haddFileName="tree_%s.root" % str(options.jobNum)))
 if options.isMC and options.doSyst==1:
    for sys in pro_syst:
        for var in ["Up", "Down"]:
            modules_era.append(HH_NTuple(options.isMC, int(options.era), do_syst=1,
-                                    syst_var=sys + var, sample=options.dataset, njetw=options.njetw, ttreweight=options.ttreweight))#,
+                                    syst_var=sys + var, sample=options.dataset, njetw=options.njetw, ttreweight=options.ttreweight))#, eftbenchmark=options.EFTbenchmark))#,
 #                                    haddFileName=f"tree_{options.jobNum}_{sys}{var}.root"))
 
    for sys in ext_syst:
@@ -118,6 +121,7 @@ if options.isMC and options.doSyst==1:
                    sample=options.dataset,
                    njetw=options.njetw,
                    ttreweight=options.ttreweight
+                   #eftbenchmark=options.EFTbenchmark
 #                   haddFileName=f"tree_{options.jobNum}_{sys}{var}.root",
                )
            )

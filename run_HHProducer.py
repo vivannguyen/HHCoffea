@@ -31,7 +31,7 @@ cp $2 temp_$1.root
 
 INFILE=$2
 echo "INFILE $INFILE"
-python condor_HH_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=$INFILE
+python condor_HH_WS.py --jobNum=$1 --isMC={ismc} --era={era} --infile=$INFILE --njetw={njetw} --ttreweight={ttreweight}
 
 echo "----- transfer output to eos :"
 NUM_EXT="${{INFILE##*_}}"
@@ -63,6 +63,13 @@ Requirements = HasSingularity
 queue jobid from {jobdir}/inputfiles.dat
 """
 
+#NUM_EXT="${{INFILE##*_}}"
+#echo $NUM_EXT
+#NUM="${{NUM_EXT%.root}}"
+#echo "LOOK AT ME $NUM"
+#xrdcp -s -f tree_{era}_WS.root {eosoutdir}/{sample_dir}_tree_${{NUM}}_WS.root
+
+#xrdcp -s -f tree_{era}_WS.root {eosoutdir}/{sample_dir}_WS.root
 #xrdcp -s -f {sample_dir}_tree_${{NUM}}_WS.root {eosoutdir}
 def main():
     parser = argparse.ArgumentParser(description='Famous Submitter')
@@ -70,6 +77,8 @@ def main():
     parser.add_argument("-isMC", "--isMC"  , type=int, default=1          , help="")
     parser.add_argument("-q"   , "--queue" , type=str, default="espresso", help="")
     parser.add_argument("-e"   , "--era"   , type=str, default="2017"     , help="")
+    parser.add_argument("-njetw", "--njetw"  , type=str, default=None          , help="")
+    parser.add_argument("-tt", "--ttreweight"  , type=int, default=None          , help="")
     parser.add_argument("-f"   , "--force" , action="store_true"          , help="recreate files and jobs")
     parser.add_argument("-s"   , "--submit", action="store_true"          , help="submit only")
     parser.add_argument("-dry" , "--dryrun", action="store_true"          , help="running without submission")
@@ -77,8 +86,10 @@ def main():
     options = parser.parse_args()
 
     cmssw_base = os.environ['CMSSW_BASE']
-    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/test/DYtest/"
+    #indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/jlidrych/v8/2016/"
+    indir = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/test/zac2/"
     eosbase = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/vivan/{tag}/{year}/{sample}/"
+    #eosbase2 = "/eos/cms/store/group/phys_higgs/HiggsExo/HH_bbZZ_bbllqq/vivan/{tag}/{year}/"
 
     def do_the_thing(sample, sample_dir=''):
         sample_joined = os.path.join(sample_dir, sample.replace('.root', ''))
@@ -108,9 +119,10 @@ def main():
 
         time.sleep(1)
         if sample_dir == '':
-            eosoutdir = eosbase.format(tag=options.tag + "_ws", year=options.era, sample=sample)
+            #eosoutdir = eosbase2.format(tag=options.tag, year=options.era)
+            eosoutdir = eosbase.format(tag=options.tag, year=options.era, sample=sample)
         else:
-            eosoutdir = eosbase.format(tag=options.tag + "_ws", year=options.era, sample=sample_dir)
+            eosoutdir = eosbase.format(tag=options.tag, year=options.era, sample=sample_dir)
 
         if '/eos/cms' in eosoutdir:
             eosoutdir = eosoutdir.replace('/eos/cms', 'root://eoscms.cern.ch/')
@@ -125,6 +137,8 @@ def main():
                 era=options.era,
                 eosoutdir=eosoutdir,
                 sample_dir=sample_dir,
+                njetw=options.njetw,
+                ttreweight=options.ttreweight,
             )
             scriptfile.write(script)
             scriptfile.close()
@@ -138,7 +152,10 @@ def main():
                     "../btag_weights.jsonl",
                     "../2016newfinalselecttest",
                     "../2017newfinalselecttest",
-                    "../2018newfinalselecttest"
+                    "../2018newfinalselecttest",
+                    "../2016newfinalselecttest-ee",
+                    "../2017newfinalselecttest-ee",
+                    "../2018newfinalselecttest-ee"
                 ]),
                 jobdir=jobs_dir,
                 queue=options.queue

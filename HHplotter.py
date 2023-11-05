@@ -96,6 +96,11 @@ def get_histograms(hist_paths, year, channel):
 
         f_sample = uproot.open(filename)
         histogram_sample = f_sample.allitems( filterclass=lambda cls: issubclass(cls, uproot_methods.classes.TH1.Methods))
+        print(filename)
+        if "DY" in filename:
+            for n, h in histogram_sample:
+                if n.decode('utf-8').replace(';1', '')=='BDTscore':
+                    print("weeeeeee", filename, h.numpy()[0])
         if not histogram_sample:
             print("BAMBI", filename)
             continue
@@ -144,6 +149,8 @@ def get_normalizations(sample_paths, xsections, histogram_names, year):
             elif ("SingleMuon") in fn:
                 _scale = 1
             elif ("EGamma") in fn:
+                _scale = 1
+            elif ("MuonEG") in fn:
                 _scale = 1
             else:
                 _file = uproot.open(fn)
@@ -214,8 +221,10 @@ def normalize_event_yields(event_yields, normalizations, file_to_category, var=F
     return categorized_yields
 
 def get_bins_and_event_yields(histograms, normalizations, year, filter_categories=False, print_yields=False, preselection=False):
-#    with open(f'{year}_sample_reference_VBF.json', 'r') as infile:
+    # for VBF files 
+    #with open(f'2018_sample_reference_VBF.json', 'r') as infile:
 #    with open(f'{year}_sample_reference_new.json', 'r') as infile:
+    # for GF files 
     with open(f'{year}_sample_reference_ttvchanged_DY2D.json', 'r') as infile:
 #    with open(f'{year}_sample_reference_ttvchanged_jetbin.json', 'r') as infile:
         file_to_category = json.load(infile)
@@ -280,9 +289,12 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
         if print_yields:
             if name == 'BDTscore':
                 print("yooo cHHH1", output['cHHH1'].sum())
+                print("yooo VV", output['VV'])
+                print("yooo SingleTop", output['SingleTop'])
+                print("yooo ttV", output['ttV'])
 
-        if year == '2016':
-            output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
+#        if year == '2016':
+#            output['cHHH1'] = output['cHHH1']*1000 #scale 2016 to 1pb
 #            output['VBF1'] = output['VBF1']*1000 #scale 2016 to 1pb
 
         for category in output:
@@ -294,42 +306,48 @@ def get_bins_and_event_yields(histograms, normalizations, year, filter_categorie
 #        df_dict['up'].append(total_sys_up)
 #        df_dict['down'].append(total_sys_down)
 
-        if print_yields:
-            if name == 'ngood_bjetsM':
-            #if name == 'BDTscore':
-            #if name == 'Zlep_cand_mass':
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         #'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
-                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
-                        #]
-                if year == '2018':
-                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
-                         #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
-                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
-                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-                         #'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
-                         #'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
-                         #'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'
-                        ]
-                for idx, y in enumerate(y):
-                    print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
-                    print(f'Yield {y}: {(event_yields[y]*normalizations[y])}')
+#        if print_yields:
+#            #if name == 'ngood_bjetsM':
+#            if name == 'BDTscore':
+#            #if name == 'Zlep_cand_mass':
+#                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+#                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+#                         #'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+#                         #'TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8',
+#                         #'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8',
+#                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+#                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8'
+#                        #]
+#                #if year == '2017':
+#                    #y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+#                        #'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8',
+#                        #'TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8',
+#                        #'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8',
+#                        #'TTZToQQ_TuneCP5_13TeV-amcatnlo-pythia8']
+#                if year == '2018':
+#                    y = ['GluGluToHHTo2B2ZTo2L2J_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8',
+#                         #'VBFHHTo2B2ZTo2L2J_CV_1_C2V_1_C3_1_dipoleRecoilOff-TuneCP5_PSweights_13TeV-madgraph-pythia8',
+#                         #'GluGluToHHTo2B2ZTo2L2J_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-260_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-600_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'GluGluToRadionToHHTo2B2ZTo2L2J_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8',
+#                         #'DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+#                         #'DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+#                         #'DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+#                         #'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
+#                         #'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8',
+#                         #'TTToHadronic_TuneCP5_13TeV-powheg-pythia8',
+#                         #'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'
+#                        ]
+#                for idx, y in enumerate(y):
+#                    print(f'Yield {y}: {(event_yields[y]*normalizations[y]).sum()}')
+#                    print(f'Yield {y}: {(event_yields[y]*normalizations[y])}')
 
     logging.info('Finished getting bins and event yields.')
-#    for key in df_dict:
-#        print(key, len(df_dict[key]))
+    for key in df_dict:
+        print(key, len(df_dict[key]))
 
     return pd.DataFrame(df_dict)
 
@@ -409,11 +427,8 @@ def systematics_func(df, year, channel, threshold=np.inf, drop_mets=True):
                 .assign(systematic_name=lambda x: x.sample_name.str.split('_').str[2:].str.join('_')
                         .str.replace('Up', '').str.replace('Down', '')))
 
-    print("\n\n\n aksdjflkasdjf", for_plot)
-
     #print(for_plot['sample_name'].to_string(index=False))
     plot_systematics(for_plot, year, channel, outdir= f'systematicsplots{channel}{year}')
-    print("HEREEEEE")
 
     return df[df['sys_type'] == '']
 
@@ -686,6 +701,8 @@ def new_plotting(event_yields, bkgd_norm, year, channel, outdir='', print_yields
             Data[blinding_bins:] = np.inf
 
     MC += Other
+    if event_yields['sample_name']=="BDTscore":
+        print('MC yield: ', MC)
 
     # The first bin has a value of 0 and will give a warning.
     ratio = Data/MC
@@ -861,8 +878,6 @@ def plot_systematics(for_plot, year, channel, outdir=''):
     for idx in range(1, len(for_plot), 2):
         fig, axes = plt.subplots(nrows=2, dpi=150, figsize=(5, 5), gridspec_kw={'height_ratios': [5, 1]})
         binc = (for_plot.iloc[0].bins[:-1] + for_plot.iloc[0].bins[1:]) / 2
-        print("index", idx, for_plot.iloc[idx]['sample_name'])
-        print("index1", idx+1, for_plot.iloc[idx+1]['sample_name'])
         axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[0].Sys, log=log, label='BDT score',
                  histtype='step', color='black')
         axes[0].hist(binc, bins=for_plot.iloc[0].bins, weights=for_plot.iloc[idx].Sys, log=log, label='Up',
@@ -911,13 +926,13 @@ def plot_systematics(for_plot, year, channel, outdir=''):
         cms = axes[0].text(
             #lower_label, max_y*1.08, u"CMS $\it{Preliminary}$",
             lower_label, max_y*1.08, u"CMS $\it{Work\,in\,progress}$",
-            fontsize=16, fontweight='bold',
+            fontsize=14, fontweight='bold',
         )
 
         axes[0].text(
             upper_label, max_y*1.08, f'{LUMI[year]:.1f} fb$^{{-1}}$ (13 TeV)',
             #upper_label, max_y*1.08, '36 fb$^{{-1}}$ (13 TeV)',
-            fontsize=14,
+            fontsize=12,
         )
 
         if channel == 'electron':
@@ -935,7 +950,6 @@ def plot_systematics(for_plot, year, channel, outdir=''):
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
         #os.mkdir(outdir)
-        print("now hereeeeeee here her her")
         fig.savefig(os.path.join(outdir, f'{for_plot.iloc[idx].systematic_name}_{year}.png'), bbox_inches='tight')
         plt.close()
 
@@ -1036,15 +1050,15 @@ def main():
             btag_ratio(df, args.year, btag_path, args.btag_overwrite)
     else:
         if args.finalselection:
-            #for tt bar reweight and QCD positive bins only
+            #for tt bar reweight and QCD positive bins only. Order QCD DY TT
             if args.channel == 'muon':
-                if args.year == '2018': bkgd_norm = (1.68, 1.86, 0.855)
-                if args.year == '2017': bkgd_norm = (1.77, 2.06, 1.3)
-                if args.year == '2016': bkgd_norm = (1.7, 1.28, 1.03)
+                if args.year == '2016': bkgd_norm = (1.72, 1.35, 1.03)
+                if args.year == '2017': bkgd_norm = (1.77, 2.03, 1.39)
+                if args.year == '2018': bkgd_norm = (1.66, 1.66, 1.29)
             if args.channel == 'electron':
-                if args.year == '2016': bkgd_norm = (1.12, 1.25, 0.98)
-                if args.year == '2017': bkgd_norm = (1.13, 1.6, 1.22)
-                if args.year == '2018': bkgd_norm = (1.16, 1.7, 0.953)
+                if args.year == '2016': bkgd_norm = (1.05, 1.31, 0.986)
+                if args.year == '2017': bkgd_norm = (1.18, 1.86, 1.28)
+                if args.year == '2018': bkgd_norm = (1.22, 1.74, 1.33)
         else:
             bkgd_norm = estimate_background(df)
 
@@ -1063,7 +1077,7 @@ def main():
 
     logging.info(f'Finished making plots and saved to {outdir}.')
     if args.datacard:
-        fname = f'QCD_estimate_{args.year}.root'
+        fname = f'QCD_estimate_{args.year}{args.channel}.root'
         f = uproot.recreate(fname, compression=uproot.ZLIB(4))
         for rowidx in range(df.shape[0]):
             qcd_estimate = df.iloc[rowidx]['QCD_estimate']
