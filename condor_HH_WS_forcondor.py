@@ -3,11 +3,13 @@ import re
 
 from coffea.processor import run_uproot_job, futures_executor
 
-from python.HH_Producer import *
-from python.SumWeights import *
+# for local
+#from python.HH_Producer import *
+#from python.SumWeights import *
 
-#from HH_Producer import *
-#from SumWeights import *
+# for condor
+from HH_Producer import *
+from SumWeights import *
 
 import uproot3 as uproot
 import argparse
@@ -66,8 +68,8 @@ if float(options.nevt) > 0:
     pre_selection += ' && (Entry$ < {})'.format(options.nevt)
 
 #pro_syst = ["ElectronEn", "MuonEn"] #, "", "jer"]
-pro_syst = ["ElectronEn", "MuonEn", "jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]
-
+pro_syst = ["ElectronEn", "MuonEn", "jer", "UnclusteredEn", "bRegScale", "bRegSmear", "jesAbsolute", "jesBBEC1", "jesEC2","jesFlavorQCD","jesHF","jesRelativeBal"]#, "met_ptUnclustEn", "met_phiUnclustEn"]
+#pro_syst = []
 if options.era == '2016':
     pro_syst.extend(["jesAbsolute_2016","jesBBEC1_2016","jesEC2_2016","jesHF_2016","jesRelativeSample_2016"])
 if options.era == '2017':
@@ -75,6 +77,7 @@ if options.era == '2017':
 if options.era == '2018':
     pro_syst.extend(["jesAbsolute_2018","jesBBEC1_2018","jesEC2_2018","jesHF_2018","jesRelativeSample_2018"])
 
+#ext_syst = ["QCDScale0w", "QCDScale1w", "QCDScale2w"]
 ext_syst = ["puWeight", "PrefireWeight", "PDF", "MuonSF", "ElectronSF", "TriggerSFWeight", "QCDScale0w", "QCDScale1w", "QCDScale2w",
             "hf", "lf", "cferr1", "cferr2"]
 
